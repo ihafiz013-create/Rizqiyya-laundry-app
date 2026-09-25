@@ -30,15 +30,36 @@
         /* Bubble Background Pattern */
         .bg-bubbles { background-image: radial-gradient(rgba(14, 165, 233, 0.1) 2px, transparent 2px); background-size: 30px 30px; }
 
-        /* Thermal Print Styles */
-        @media print {
-            body * { visibility: hidden; }
-            #thermalReceipt, #thermalReceipt * { visibility: visible; font-family: monospace; }
-            #thermalReceipt { position: absolute; left: 0; top: 0; width: 58mm; margin: 0; padding: 5px; font-size: 12px; color: black; background: white; }
-            #qrcode img { margin: 0 auto; width: 35mm; height: 35mm; }
-        }
         select optgroup { font-weight: 700; color: #0f172a; background: #f1f5f9; }
         select option { font-weight: 500; color: #334155; background: white; }
+
+        /* =========================================
+           PENGATURAN KHUSUS CETAK THERMAL 
+           ========================================= */
+        #thermalReceipt { display: none; } /* Sembunyikan nota di tampilan layar hp/pc */
+
+        @media print {
+            @page { margin: 0; }
+            body { margin: 0; padding: 0; background: white; }
+            
+            /* Hancurkan/hilangkan semua UI utama agar tidak mencetak halaman kosong */
+            #adminLoginScreen, #adminMainApp { display: none !important; }
+            
+            /* Tampilkan khusus form nota */
+            #thermalReceipt { 
+                display: block !important; 
+                position: relative;
+                width: 58mm; 
+                margin: 0; 
+                padding: 5px; 
+                font-size: 12px; 
+                color: black; 
+                background: white; 
+                font-family: monospace; 
+            }
+            #thermalReceipt * { visibility: visible; }
+            #qrcode img { margin: 0 auto; width: 35mm; height: 35mm; }
+        }
     </style>
 </head>
 <body class="overflow-hidden" onload="initSystem()">
@@ -98,10 +119,6 @@
                         <li onclick="switchAdminTab('pos')" data-roles="kasir,owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all relative group">
                             <i class="fas fa-cash-register w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Kasir (POS)</span>
                             <span id="posBadge" class="absolute right-4 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">Draft</span>
-                        </li>
-                        <li onclick="switchAdminTab('chat')" data-roles="kasir,owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all relative group">
-                            <i class="fas fa-comments w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Live Chat CS</span>
-                            <span id="chatBadgeAdmin" class="absolute right-4 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden animate-pulse">Baru</span>
                         </li>
                         <li onclick="switchAdminTab('kurir')" data-roles="kurir,kasir,owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all relative group">
                             <i class="fas fa-motorcycle w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Tugas & Kurir</span>
@@ -214,35 +231,12 @@
                                     <div id="qrisContainer" class="hidden fade-in bg-white/10 p-4 rounded-xl border border-white/20 text-center mt-4">
                                         <p class="text-xs font-bold text-cyan-300 mb-3 uppercase tracking-widest">Scan QRIS untuk Membayar</p>
                                         
-                                        <!-- Ini otomatis membaca file image_2.png -->
                                         <img id="qrisImage" class="mx-auto rounded-lg bg-white p-2 shadow-sm mb-2" alt="Foto QRIS Rizqiyya" style="width: 180px; height: 180px; object-fit: contain;">
 
                                         <p class="text-[10px] text-slate-400 font-medium">*(Minta customer untuk scan & cek nominal)*</p>
                                     </div>
                                 </div>
                                 <button onclick="processCheckout()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-5 rounded-2xl text-lg mt-8 shadow-lg transition-all relative z-10"><i class="fas fa-print mr-2"></i> Simpan & Cetak Nota</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB: LIVE CHAT CS -->
-                <div id="admin-tab-chat" class="admin-tab-content hidden h-full max-w-6xl mx-auto">
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 h-full pb-4">
-                        <div class="md:col-span-4 bg-white border border-slate-200 rounded-[2rem] p-6 flex flex-col h-[calc(100vh-140px)] shadow-sm">
-                            <h3 class="font-extrabold text-slate-800 mb-4"><i class="fas fa-inbox text-cyan-500 mr-2"></i>Pesan Masuk CS</h3>
-                            <div id="adminChatList" class="flex-1 overflow-y-auto space-y-2 hide-scroll pr-2"></div>
-                        </div>
-                        <div class="md:col-span-8 glass-panel border border-slate-200 rounded-[2rem] flex flex-col h-[calc(100vh-140px)] overflow-hidden shadow-sm">
-                            <div class="bg-cyan-50 border-b border-cyan-100 p-5 flex justify-between shrink-0 items-center">
-                                <div><h4 class="font-extrabold text-slate-800 text-lg" id="activeChatName">Pilih Obrolan</h4><p class="text-xs text-cyan-700 font-bold mt-1 bg-cyan-100 inline-block px-2 py-0.5 rounded-md">ID: <span id="activeChatPhone">-</span></p></div>
-                            </div>
-                            <div id="adminChatWindow" class="flex-1 bg-white p-6 overflow-y-auto space-y-4">
-                                <div class="flex items-center justify-center h-full text-slate-400 text-sm font-medium">Pilih pesan di samping untuk membalas.</div>
-                            </div>
-                            <div class="bg-slate-50 p-4 border-t border-slate-200 flex gap-3 shrink-0">
-                                <input type="text" id="adminChatInput" placeholder="Ketik balasan CS... (Enter)" onkeypress="if(event.key==='Enter') sendAdminReply()" class="flex-1 bg-white border border-slate-200 px-5 py-3 rounded-xl font-medium outline-none focus:border-cyan-500 disabled:opacity-50" disabled>
-                                <button onclick="sendAdminReply()" id="adminChatBtn" class="bg-blue-600 text-white px-6 rounded-xl font-bold disabled:opacity-50 shadow-md" disabled><i class="fas fa-paper-plane mr-2"></i> Balas</button>
                             </div>
                         </div>
                     </div>
@@ -298,16 +292,34 @@
                                 <h3 class="font-extrabold text-2xl text-slate-800">Manajemen Gudang (Auto-Deduct)</h3>
                                 <p class="text-sm text-slate-500 mt-1 font-medium">Stok otomatis berkurang saat transaksi berhasil.</p>
                             </div>
-                            <button onclick="preOrderProduct()" class="bg-blue-600 text-white px-6 py-3.5 rounded-xl text-sm font-bold hover:bg-blue-700 shadow-md flex items-center gap-2 transition-colors">
-                                <i class="fab fa-whatsapp text-lg"></i> Pre-order Product
-                            </button>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                             <div class="bg-white border border-rose-100 p-6 rounded-[1.5rem] flex flex-col shadow-sm relative overflow-hidden"><span class="text-[10px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full font-bold w-fit mb-4">GUDANG</span><p class="text-slate-500 text-sm font-medium">Deterjen Cair</p><h2 class="text-3xl font-extrabold text-slate-700 mt-1" id="stockDet">0 <span class="text-sm font-bold text-slate-400">ml</span></h2></div>
                             <div class="bg-white border border-amber-100 p-6 rounded-[1.5rem] flex flex-col shadow-sm relative overflow-hidden"><span class="text-[10px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full font-bold w-fit mb-4">GUDANG</span><p class="text-slate-500 text-sm font-medium">Parfum Laundry</p><h2 class="text-3xl font-extrabold text-slate-700 mt-1" id="stockParf">0 <span class="text-sm font-bold text-slate-400">ml</span></h2></div>
                             <div class="bg-white border border-emerald-100 p-6 rounded-[1.5rem] flex flex-col shadow-sm relative overflow-hidden"><span class="text-[10px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full font-bold w-fit mb-4">GUDANG</span><p class="text-slate-500 text-sm font-medium">Plastik Packing</p><h2 class="text-3xl font-extrabold text-slate-700 mt-1" id="stockPlas">0 <span class="text-sm font-bold text-slate-400">Pcs</span></h2></div>
                         </div>
+
+                        <!-- OPSI FORM PRE-ORDER BAHAN BAKU BARU -->
+                        <div class="bg-cyan-50 border border-cyan-100 p-6 rounded-[1.5rem] shadow-sm">
+                            <h3 class="font-extrabold text-lg text-slate-800 mb-4"><i class="fas fa-shopping-cart text-blue-500 mr-2"></i>Form Pre-Order Bahan Baku</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
+                                <div>
+                                    <label class="text-xs font-bold mb-2 block uppercase text-slate-500">Deterjen (Botol/Jerigen)</label>
+                                    <input type="number" id="poDeterjen" min="0" value="0" class="w-full bg-white border-2 border-slate-200 p-3.5 rounded-xl font-bold focus:border-cyan-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold mb-2 block uppercase text-slate-500">Parfum (Botol)</label>
+                                    <input type="number" id="poParfum" min="0" value="0" class="w-full bg-white border-2 border-slate-200 p-3.5 rounded-xl font-bold focus:border-cyan-500 outline-none">
+                                </div>
+                                <div>
+                                    <button onclick="preOrderProduct()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-md transition-all flex justify-center items-center gap-2">
+                                        <i class="fab fa-whatsapp text-lg"></i> Kirim PO ke Owner
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -317,7 +329,7 @@
     <!-- ==========================================
          THERMAL RECEIPT (STRUK CETAK) 
     =========================================== -->
-    <div id="thermalReceipt" class="hidden">
+    <div id="thermalReceipt">
         <div style="text-align: center; border-bottom: 2px dashed black; padding-bottom: 10px; margin-bottom: 10px;">
             <h1 style="margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px;">RIZQIYYA</h1>
             <h2 style="margin: 0; font-size: 14px; letter-spacing: 2px;">LAUNDRY</h2>
@@ -350,9 +362,9 @@
         // ==========================================
         // VARIABEL GLOBAL
         // ==========================================
-        let currentUser = null, adminCart = [], selectedMethod = '', totalDiscount = 0, currentlyOpenChatPhone = null;
+        let currentUser = null, adminCart = [], selectedMethod = '', totalDiscount = 0;
 
-        // KONEKSI FILE GAMBAR QRIS (SUDAH TER-REFRESH)
+        // KONEKSI FILE GAMBAR QRIS
         const MY_QRIS_IMAGE = "image_2.png";
 
         // ==========================================
@@ -397,12 +409,11 @@
             // Tampilkan menu sidebar berdasarkan hak akses (roles)
             document.querySelectorAll('.admin-nav-item').forEach(el => {
                 const reqRoles = el.getAttribute('data-roles').split(',');
-                // Cek apakah user saat ini memiliki salah satu dari role yang diizinkan di tab tersebut
                 const hasAccess = currentUser.roles.some(r => reqRoles.includes(r));
                 el.style.display = hasAccess ? 'flex' : 'none';
             });
             
-            checkAdminUnreadChats(); loadAdminPOSDrafts();
+            loadAdminPOSDrafts();
             if(currentUser.roles.includes('owner')) switchAdminTab('dashboard'); 
             else if(currentUser.roles.includes('kasir')) switchAdminTab('pos'); 
             else switchAdminTab('kurir');
@@ -419,7 +430,6 @@
             }); 
             document.getElementById('btnMetode_'+method).classList.add('bg-blue-600', 'text-white', 'border-blue-500'); 
 
-            // TAMPILKAN QRIS JIKA PILIH QRIS
             if(method === 'QRIS') {
                 document.getElementById('qrisImage').src = MY_QRIS_IMAGE;
                 document.getElementById('qrisContainer').classList.remove('hidden');
@@ -439,11 +449,6 @@
                     if(e.key === 'rizqiyya_pickup_requests') { loadAdminCourierTasks(); Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Pickup Baru!', showConfirmButton: false, timer: 3000 }); }
                     if(e.key === 'rizqiyya_pos_drafts') loadAdminPOSDrafts();
                     if(e.key === 'rizqiyya_db_orders') { loadAdminDashboard(); loadAdminWaitlist(); }
-                    if(e.key === 'rizqiyya_live_chats') {
-                        checkAdminUnreadChats();
-                        if(!document.getElementById('admin-tab-chat').classList.contains('hidden')) { loadAdminChatList(); if(currentlyOpenChatPhone) openAdminChat(currentlyOpenChatPhone); }
-                        else { Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Pesan CS Baru Masuk!', showConfirmButton: false, timer: 3000 }); }
-                    }
                 }
             });
 
@@ -469,12 +474,14 @@
         function switchAdminTab(tabId) {
             document.querySelectorAll('.admin-tab-content').forEach(tab => tab.classList.add('hidden'));
             document.getElementById('admin-tab-' + tabId).classList.remove('hidden');
-            const titles = { 'dashboard': 'Dashboard Analitik', 'pos': 'Kasir POS', 'mesin': 'Ruang Mesin', 'kurir': 'Tugas & Kurir', 'stok': 'Manajemen Gudang', 'chat': 'Live Chat CS' };
+            const titles = { 'dashboard': 'Dashboard Analitik', 'pos': 'Kasir POS', 'mesin': 'Ruang Mesin', 'kurir': 'Tugas & Kurir', 'stok': 'Manajemen Gudang' };
             document.getElementById('adminPageTitle').innerText = titles[tabId];
 
-            if(tabId === 'dashboard') loadAdminDashboard(); if(tabId === 'pos') loadAdminPOSDrafts(); if(tabId === 'chat') loadAdminChatList();
+            if(tabId === 'dashboard') loadAdminDashboard(); 
+            if(tabId === 'pos') loadAdminPOSDrafts(); 
             if(tabId === 'kurir') { document.getElementById('kurirBadge').classList.add('hidden'); loadAdminCourierTasks(); }
-            if(tabId === 'mesin') loadAdminWaitlist(); if(tabId === 'stok') loadAdminStock();
+            if(tabId === 'mesin') loadAdminWaitlist(); 
+            if(tabId === 'stok') loadAdminStock();
         }
 
         // --- ADMIN POS LOGIC ---
@@ -535,82 +542,50 @@
             stock.det -= (weightForLeaderboard * 50); stock.parf -= (weightForLeaderboard * 10); stock.plas -= 1; localStorage.setItem('rizqiyya_stock', JSON.stringify(stock));
 
             // Setup Receipt Thermal
-            document.getElementById('printInv').innerText = inv; document.getElementById('printDate').innerText = new Date().toLocaleDateString('id-ID');
+            document.getElementById('printInv').innerText = inv; 
+            document.getElementById('printDate').innerText = new Date().toLocaleDateString('id-ID');
             document.getElementById('printName').innerText = custNameInput;
-            let printCart = ''; adminCart.forEach(i => { printCart += `<tr><td colspan="2">${i.name}</td></tr><tr><td>${i.qty} x ${i.price}</td><td style="text-align:right">${i.sub}</td></tr>`; });
+            let printCart = ''; 
+            adminCart.forEach(i => { printCart += `<tr><td colspan="2">${i.name}</td></tr><tr><td>${i.qty} x ${i.price}</td><td style="text-align:right">${i.sub}</td></tr>`; });
             if(totalDiscount>0) printCart += `<tr><td>Diskon</td><td style="text-align:right">-${totalDiscount}</td></tr>`;
-            document.getElementById('printCartTable').innerHTML = printCart; document.getElementById('printFinalTotal').innerText = `Rp ${grand.toLocaleString('id-ID')}`;
+            document.getElementById('printCartTable').innerHTML = printCart; 
+            document.getElementById('printFinalTotal').innerText = `Rp ${grand.toLocaleString('id-ID')}`;
             document.getElementById('printKasir').innerText = currentUser.name;
-            document.getElementById('qrcode').innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: inv, width: 120, height: 120, colorDark : "#000000", colorLight : "#ffffff" });
-
-            Swal.fire({ icon: 'success', title: 'Transaksi Berhasil', text: 'Nota sedang disiapkan...', confirmButtonColor: '#0ea5e9', confirmButtonText: 'Cetak Struk Thermal' }).then(() => {
-                document.getElementById('thermalReceipt').classList.remove('hidden'); window.print(); document.getElementById('thermalReceipt').classList.add('hidden');
-                
-                if(custPhoneInput) {
-                    let formattedPhone = custPhoneInput;
-                    if(formattedPhone.startsWith('0')) formattedPhone = '62' + formattedPhone.substring(1);
-                    if(!formattedPhone.startsWith('+')) formattedPhone = '+' + formattedPhone;
-                    
-                    const listItems = adminCart.map(c => `- ${c.name} (${c.qty})`).join('%0A');
-                    const msg = `Halo *${custNameInput}*,%0A%0ATerima kasih telah mempercayakan cucian Anda di *Rizqiyya Laundry*.%0A%0A*Nota:* ${inv}%0A*Layanan:*%0A${listItems}%0A*Total Tagihan:* Rp ${grand.toLocaleString('id-ID')}%0A%0ACucian Anda sedang kami proses dengan sepenuh hati. Silakan pantau statusnya di Web Aplikasi kami.%0A%0A_Bersih, Wangi, Sepenuh Hati_`;
-                    
-                    setTimeout(() => { window.open(`https://wa.me/${formattedPhone.replace('+','')}?text=${msg}`, '_blank'); }, 500);
-                }
-
-                adminCart = []; renderAdminCart(); document.getElementById('posName').value = ''; document.getElementById('posPhone').value = ''; document.getElementById('posItemQty').value = '1';
-                ['TUNAI', 'QRIS'].forEach(m => { document.getElementById('btnMetode_'+m).classList.add('border-slate-700', 'text-slate-300'); document.getElementById('btnMetode_'+m).classList.remove('bg-blue-600', 'text-white', 'border-blue-500'); });
-                selectedMethod = '';
-                document.getElementById('qrisContainer').classList.add('hidden');
-            });
-        }
-
-        // --- ADMIN CHAT LOGIC ---
-        function checkAdminUnreadChats() {
-            let chats = JSON.parse(localStorage.getItem('rizqiyya_live_chats')) || {};
-            if(Object.values(chats).some(c => c.unreadAdmin > 0)) document.getElementById('chatBadgeAdmin').classList.remove('hidden');
-            else document.getElementById('chatBadgeAdmin').classList.add('hidden');
-        }
-
-        function loadAdminChatList() {
-            let chats = JSON.parse(localStorage.getItem('rizqiyya_live_chats')) || {};
-            const sortedPhones = Object.keys(chats).sort((a,b) => chats[b].lastUpdated - chats[a].lastUpdated);
-            if(sortedPhones.length === 0) { document.getElementById('adminChatList').innerHTML = `<p class="text-xs text-slate-400 text-center mt-5">Belum ada pesan masuk.</p>`; return; }
-            let html = '';
-            sortedPhones.forEach(phone => {
-                const c = chats[phone];
-                const unreadBadge = c.unreadAdmin > 0 ? `<span class="bg-rose-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold ml-2 shadow-sm">${c.unreadAdmin}</span>` : '';
-                const isActive = (currentlyOpenChatPhone === phone) ? 'bg-cyan-50 border-cyan-200' : 'bg-slate-50 border-slate-100 hover:bg-slate-100';
-                html += `<div onclick="openAdminChat('${phone}')" class="p-4 rounded-xl border cursor-pointer ${isActive} flex items-center justify-between mb-2 transition-colors"><div class="overflow-hidden flex-1"><h4 class="font-bold text-slate-800 text-sm truncate">${c.name}</h4><p class="text-[10px] text-slate-400 font-bold mb-0.5">ID: ${phone}</p><p class="text-xs text-slate-500 truncate">${c.messages.length > 0 ? c.messages[c.messages.length - 1].text : ''}</p></div>${unreadBadge}</div>`;
-            });
-            document.getElementById('adminChatList').innerHTML = html;
-        }
-
-        function openAdminChat(phone) {
-            currentlyOpenChatPhone = phone; let chats = JSON.parse(localStorage.getItem('rizqiyya_live_chats')) || {};
-            if(!chats[phone]) return;
-            chats[phone].unreadAdmin = 0; localStorage.setItem('rizqiyya_live_chats', JSON.stringify(chats));
-            checkAdminUnreadChats(); loadAdminChatList(); 
-            document.getElementById('activeChatName').innerText = chats[phone].name; document.getElementById('activeChatPhone').innerText = phone;
-            document.getElementById('adminChatInput').disabled = false; document.getElementById('adminChatBtn').disabled = false;
             
-            let html = '';
-            chats[phone].messages.forEach(m => {
-                if(m.sender === 'customer') html += `<div class="flex justify-start"><div class="bg-slate-100 border border-slate-200 text-slate-700 p-4 rounded-2xl rounded-tl-sm max-w-[75%] text-sm shadow-sm">${m.text}</div></div>`;
-                else html += `<div class="flex justify-end"><div class="bg-blue-600 text-white p-4 rounded-2xl rounded-tr-sm max-w-[75%] text-sm shadow-sm">${m.text}</div></div>`;
-            });
-            const windowDiv = document.getElementById('adminChatWindow'); windowDiv.innerHTML = html; windowDiv.scrollTop = windowDiv.scrollHeight;
-        }
+            // Render QR Code
+            document.getElementById('qrcode').innerHTML = ""; 
+            new QRCode(document.getElementById("qrcode"), { text: inv, width: 120, height: 120, colorDark : "#000000", colorLight : "#ffffff" });
 
-        function sendAdminReply() {
-            const input = document.getElementById('adminChatInput'), text = input.value.trim();
-            if(!text || !currentlyOpenChatPhone) return;
-            let chats = JSON.parse(localStorage.getItem('rizqiyya_live_chats')) || {};
-            if(chats[currentlyOpenChatPhone]) {
-                chats[currentlyOpenChatPhone].messages.push({ sender: 'admin', text: text, time: Date.now() });
-                chats[currentlyOpenChatPhone].unreadCustomer += 1; chats[currentlyOpenChatPhone].lastUpdated = Date.now();
-                localStorage.setItem('rizqiyya_live_chats', JSON.stringify(chats));
-                input.value = ''; openAdminChat(currentlyOpenChatPhone); 
-            }
+            // Trigger Alert Berhasil lalu Print dengan Jeda
+            Swal.fire({ icon: 'success', title: 'Transaksi Berhasil', text: 'Menyiapkan halaman cetak...', confirmButtonColor: '#0ea5e9', confirmButtonText: 'Cetak Struk Thermal' }).then(() => {
+                setTimeout(() => {
+                    window.print();
+                    
+                    if(custPhoneInput) {
+                        let formattedPhone = custPhoneInput;
+                        if(formattedPhone.startsWith('0')) formattedPhone = '62' + formattedPhone.substring(1);
+                        if(!formattedPhone.startsWith('+')) formattedPhone = '+' + formattedPhone;
+                        
+                        const listItems = adminCart.map(c => `- ${c.name} (${c.qty})`).join('%0A');
+                        const msg = `Halo *${custNameInput}*,%0A%0ATerima kasih telah mempercayakan cucian Anda di *Rizqiyya Laundry*.%0A%0A*Nota:* ${inv}%0A*Layanan:*%0A${listItems}%0A*Total Tagihan:* Rp ${grand.toLocaleString('id-ID')}%0A%0ACucian Anda sedang kami proses dengan sepenuh hati.%0A%0A_Bersih, Wangi, Sepenuh Hati_`;
+                        
+                        setTimeout(() => { window.open(`https://wa.me/${formattedPhone.replace('+','')}?text=${msg}`, '_blank'); }, 500);
+                    }
+
+                    // Reset
+                    adminCart = []; renderAdminCart(); 
+                    document.getElementById('posName').value = ''; 
+                    document.getElementById('posPhone').value = ''; 
+                    document.getElementById('posItemQty').value = '1';
+                    ['TUNAI', 'QRIS'].forEach(m => { 
+                        document.getElementById('btnMetode_'+m).classList.add('border-slate-700', 'text-slate-300'); 
+                        document.getElementById('btnMetode_'+m).classList.remove('bg-blue-600', 'text-white', 'border-blue-500'); 
+                    });
+                    selectedMethod = '';
+                    document.getElementById('qrisContainer').classList.add('hidden');
+                    
+                }, 500);
+            });
         }
 
         // --- DASHBOARD, KURIR, DLL ---
@@ -633,7 +608,7 @@
             if(idx > -1) { requests[idx].status = 'selesai'; localStorage.setItem('rizqiyya_pickup_requests', JSON.stringify(requests)); loadAdminCourierTasks(); Swal.fire({toast:true, position:'top-end', icon:'success', title:'Masuk Draft Kasir', showConfirmButton:false, timer:2000}); }
         }
         
-        // FUNGSI BARU: KIRIM TUGAS (JEMPUT ATAU ANTAR) KE WHATSAPP KURIR
+        // FUNGSI KIRIM TUGAS JEMPUT/ANTAR KE KURIR
         function sendLocationToCourier() {
             const taskType = document.getElementById('dispatchType').value;
             const custName = document.getElementById('dispatchCustName').value;
@@ -650,15 +625,8 @@
                 waText = `🚚 *TUGAS PENGANTARAN BARU!*%0A%0A👤 *Customer:* ${custName}%0A📍 *Alamat:* ${address}%0A🗺️ *Maps:* https://maps.google.com/?q=${encodeURIComponent(address)}%0A%0ACucian sudah siap! Mohon segera diantar ke lokasi pelanggan ya!`;
             }
 
-            // Buka tab baru untuk WhatsApp
             window.open(`https://wa.me/${courierPhone}?text=${waText}`, '_blank');
-            
-            // Bersihkan form setelah diklik
-            setTimeout(() => { 
-                document.getElementById('dispatchCustName').value = ''; 
-                document.getElementById('dispatchAddress').value = ''; 
-                document.getElementById('dispatchCourierSelect').value = '';
-            }, 1000);
+            setTimeout(() => { document.getElementById('dispatchCustName').value = ''; document.getElementById('dispatchAddress').value = ''; document.getElementById('dispatchCourierSelect').value = ''; }, 1000);
         }
 
         function loadAdminDashboard() {
@@ -696,8 +664,26 @@
             document.getElementById('stockDet').innerHTML = `${stock.det} <span class="text-sm font-bold text-slate-400">ml</span>`; document.getElementById('stockParf').innerHTML = `${stock.parf} <span class="text-sm font-bold text-slate-400">ml</span>`; document.getElementById('stockPlas').innerHTML = `${stock.plas} <span class="text-sm font-bold text-slate-400">Pcs</span>`;
         }
 
+        // FUNGSI PRE-ORDER BAHAN BAKU BARU
         function preOrderProduct() {
-            window.location.href = `https://wa.me/6281212345232?text=Halo Owner Rizqiyya Laundry,%0A%0ASaya ingin melakukan Pre-order produk/bahan baku toko.%0A%0AMohon konfirmasi harga dan ketersediaannya.`;
+            const detQty = document.getElementById('poDeterjen').value;
+            const parfQty = document.getElementById('poParfum').value;
+            
+            if(detQty == 0 && parfQty == 0) {
+                return Swal.fire('Data Kosong', 'Silakan isi jumlah deterjen atau parfum yang ingin dipesan terlebih dahulu.', 'warning');
+            }
+
+            let msg = `Halo Owner Rizqiyya Laundry,%0A%0ASaya ingin melakukan Pre-order (PO) bahan baku toko dengan rincian berikut:%0A`;
+            if(detQty > 0) msg += `- Deterjen Cair: *${detQty} Botol/Jerigen*%0A`;
+            if(parfQty > 0) msg += `- Parfum Laundry: *${parfQty} Botol*%0A`;
+            msg += `%0AMohon konfirmasi kapan pengiriman bahan baku tersebut. Terima kasih.`;
+
+            // Buka WhatsApp ke Owner
+            window.open(`https://wa.me/6281212345232?text=${msg}`, '_blank');
+            
+            // Reset input form
+            document.getElementById('poDeterjen').value = 0;
+            document.getElementById('poParfum').value = 0;
         }
     </script>
 </body>
