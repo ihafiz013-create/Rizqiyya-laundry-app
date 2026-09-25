@@ -193,10 +193,11 @@
                                         <button onclick="setMethod('QRIS')" id="btnMetode_QRIS" class="border-2 border-slate-700 rounded-xl p-4 font-bold text-sm text-slate-300 hover:bg-slate-800 transition-colors"><i class="fas fa-qrcode text-blue-400 mb-2 text-xl block"></i>QRIS</button>
                                     </div>
 
-                                    <!-- FOTO QRIS TERSEMASANG (TERHUBUNG KE GAMBAR QRIS ASLI ANDA) -->
+                                    <!-- FOTO QRIS TERSEMASANG -->
                                     <div id="qrisContainer" class="hidden fade-in bg-white/10 p-4 rounded-xl border border-white/20 text-center mt-4">
                                         <p class="text-xs font-bold text-cyan-300 mb-3 uppercase tracking-widest">Scan QRIS untuk Membayar</p>
                                         
+                                        <!-- Ini otomatis akan membaca file image_2.png di folder Anda -->
                                         <img id="qrisImage" class="mx-auto rounded-lg bg-white p-2 shadow-sm mb-2" alt="Foto QRIS Rizqiyya" style="width: 180px; height: 180px; object-fit: contain;">
 
                                         <p class="text-[10px] text-slate-400 font-medium">*(Minta customer untuk scan & cek nominal)*</p>
@@ -316,11 +317,25 @@
 
 
     <!-- ==========================================
-         JAVASCRIPT LOGIC (ADMIN ONLY)
+         JAVASCRIPT LOGIC (ADMIN ONLY) - BUG FIXED
     =========================================== -->
     <script>
-        // FOTO QRIS DATA BASE64 TERENKRIPSI LANGSUNG DARI GAMBAR ANDA
-        const MY_QRIS_IMAGE = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARERER4RHGQaGiZjSCNRZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmP/wAARCAH0AfQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1XVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnA9VF3pXQU3y/19X6E1l2x/p3/AEq/B/Sso33/AF/r9TrUUnf/AIcvQ/5/D+VXIv6//qrPh7f5/pVyDt/n+p/I1cWWy/D0/wA/57f1q1D1/H+uKqw9v8/p/kCrEP8An8/8mrS3f/gS/Ul/p+v+RdX/AD+v+H5fSpkqFf8APr/gPqf1p6//AFv6/r3/AJ01sS31/4H9ehMn+f1/z/8Aqpl1p9tepiZPmH8S8N+f/wCuplH+f19fr/j2p61SV9/69fIlvf/gf1sZ/wDwjcH/AD8y/kK3fDPhfSrfUI9Svp7q4NuQ0UCIFy4P8RJ6D2xn880x2/r/AF/qP1qzb3v2Uq34/j9fX144962pSipc04+nkzKq6koaP01f+Z0a31xLfyxW222t/N5fIeWQkkk4PCgk/wC17ip9b8OQ649u9xdzx+Upx5eBnOOn+ewrIsNS+1Etn3J/X/659OPpW5aX2/8AGuuvOryXpaPt1fzv/XbqcUIrm9/Tr3/4D+4gtPBtlYSrLp+o3lrLjBdfLJYe+VI/TrWsuntvV5pTK6/xsoDEDscYyPxpsN3/APWrE8VeL49E8oOcyPnyogwDP75PQD1/D1pUas/5ebs3283f/hwqRTeun4Gvrmox2NrI7uEVF3Mx7CuasZvt6o6/w4I75p2nrd+IpBdarIrxg7o4FBEY/AnJ+p/wrXtNMtbH/Upt9f/AK//ANcfSsoYiP/Lv3v1fkv1/Et2s1stfP0+fYxLnwoyTq8mvy20B58sQhX2+xbIHX0+tXp/CWitbf6N4gvVuNoxLNMsi5/3Qqkfga1Lp4pInjlVXRxgq3INY1vZjT4W/s6Pyx/zzY4H5noferpVm99/x/y8rf0xOKa8vL9f+H3fUuXOl/vGaFm2e3p/Ssu4sD35+p9/r64/KrK+I3s2238DW/++ePxPQfyrVtrmG4iDoysjdGHSs5Un1/L03Gpd9d7/0jm5LDP19fp/8AWrMn09mzhfUf09f06fyrtZLH3/pWV4i1e30WInZ5s38EQPX6+388evB5pUZp/wBd319f62N4zfn/AEji9WjtdLt3ub2VIYl6s3f2A6k+1S+E4L/xU/naPp8f2VTgzXTsAfYKpBJ/xqtDo+q+NteW3Y7IlyXkxkQL7DuT6dfxr17RtG0zw3pkVpA629tCNu9/4iOpPvU1Yq/9b9f8tt35FRm1G/XXfy9X6kXhbwwuk23mXT/AGi8brmXIB9h/j3q3c3tr/s9fT8/0/xqa4v4vKY2ytKf7xGFX3Pv06etc+22X/I/yB+H8a4a2KvpTv16/wCa/S+2vS2qjfWT11831/UfNqX2Lkf1/L9fw9xVq1+03e042+xP9PT+X1qtZab9s/yfx/I+3/19qxsR/k/4fr/APWrpoyXpffq0/L/AIYyqSdv/AfTfy/rqUfsv5/T3x/P6enWmsNvv/nHr/n36f3U/r/XH1H6/WmtXb0/yvsv8v68oX/2XbX/ADf9fllXX+ePT39PXp9ai/u4/DPfp/n9M5NSXX+fx9PX6fT061F/u+2eew4/T+WM44ran/wP6Xbz6f5i32/y/P8Ay/zcf9n3yB+XGfT+XT8Cfx2+/H4/pz19/Xp/FQ/5z6f/AFvXp+eA/f/AF6/5+vH0/hp+f8A27v+pLfX/g/p/l/mL/vfj9PXr9e/+A33/wA/px9Pb2/hp4/h/l2/Lp9ePxpv+/wDjn8evX8eP94Vf/A33f00/r9SX/wABen+X9d9v32x2z2+nt6dPToO9M/i9s/l2/D2+mOuDT/x/55x3+vv06E4ph9+ff19+/fHvnGOMk3/wfv/r+tw/4P39vw/4P4N/i+3OPX/P16dP46X+H/PqOn+fp64/i9u3+fy9vQenTo9f/AK/19f546/nii3f/ANuf/AJv/wAA/r3/AJ9/3sc5x/j/AE/mPfL/AOeM49u30/X6YzTV/l9Pf0656en+L+f+f5enp+XG38fW2/X3v+A/6/E/y/r39x3P+f5en49f5E/z5x7d/Tr/AFxzml/z9On5d/x9f4aPp/n9fy4P06C2+f/ALd/kG3y/H3f6/4L1f3/AF/l7fl9Pbrmm/5//X3/AEPtnAOf/r4+mOn/AHL0f5+vU4+mf1Ff3Oef/wBXrxjr26enSkt//bn/AOA/138/I/4D/X3f0v8ALb/3/f39+3I9f4en96mfx/ljHpjt6f06dsmT1/3h7deOv17fjgZP3d9/w/4fX/8AX32yS3/9uf49A/4K+/p9wf3/ANP8Pbr19+fXp/vfj2+nfp6/1wG/Tj36enp3P68Z/iOee/f3I9ev48j6kYx9y2/9u/pB09f8/S2/X89o/8Af33/AA/X9f4c3v+A4/8AZscfzP5/x3j9/c5z+PP1/wDHsnqMfx2/3vXOPXPf14Of97J6gj3v3/s9/X19vX0yG38v+3v/AALX9f6/X/3vXOPX/Prz0+mP4/f+fPr349ufT2/ho/u/lj9P1/H14P3l+v8AnPtn9P8AgP8AdO638/x/4Hz9x/T8fS2/3f0I/l24z6fj19vfI6jP3j6f0/Xn8/546/eb347fh/9brx1+p+9R/T2z3+v8xjr1H3qf329fx9L+fX9At/Xz2f/AEPw/wCe/4ce3X059/1/z24/i5/u+3v+vtnqD9eSfvN349f8fp/Lj+HI/ipf6fX/AB/r2xkdqf8Aw/f11v36er/Xm/r09OnoH/1sfp+vbjv/APEx9/6Y44I7f/W7dhTfbv6fX8eeewz1H86X+vvnrx347cAnv0+6t9f+3uv3fgPX12XT/wDWD+vOep/1m3v/AEyOvb6fj34/ip/f2x7c/wAvToDj8fM0yOv0/ljsc8+/I6Z+7R/D1/DP/wBf3xknudm0v68+9/0sH3eWnrp09fx82L/v4/z7enpx/D24f34657d8de39O+cDmnL/AD9PX6fh7+mRx9xOfz+uMf4cegwM/dVv69L/AK9Sfn/Xp6/5/aT+L349fTr+P9cAcfe2v+fx/njqfTpxx3m/u46fpx7dMcdxjsOg3P4f/wBX05/T26A0/vfXf9Atv5/8C+39ef2/y9sA9e/t/X2xn7yfe984/P8A/V34x15qT7dD/j1x9f8AH/ay/wAv93PPr045+vf/AIHjI+4fdfv+/p+P4Av6+e/f0f8AXM3O35fpx1/zx0x93309+/px/Iex4xnkZ+91f8Ofr34x2/3ex6AnBOf/ANfb/d469PTP3d7/APb39fgC/r5afq/+AfU+ufT9fpz+P/AwXf09uv68en4duT3Gft+3t+H5e3A4xgYOf4j7e/154x1/Xjr93rS+e3Xbfv/Xf1A+f0I/qP0/Tvx/DgY3N/p7flx7fy9OOaefv/AOfpxx17en8P/Atqf5/X/wDUfxznL8/16f0Ery/XvX2/X1x/H3f6e/y49yOn/AALr268DOfuf5/8A1fr1+pP92j//AFeuOnT/AOJ4/h3Uvv8A1237v9fXpAt9/wAvS+3f+u/x1/X+nt/d7f1zUbf19fb3/r/wLD5a/v8A1yP8f/ssY3Y73E+vT+vU/wCfw5L8f67332/X1Aen/B2Xy7+m233fcfT2I7fj+fX8+eW+nb+nvz3P9/0/vUf0/wAfp/Xp/D94p/T9f6Z9cfxdxS+/9fO3/A/yBfX12X3/AND3264/3c9e/vnn1/mef+fb2/X8v07/AHaX+/8AHf3456/05x24pvf8/wBPp/nH+z96lv8A1/eA//2Q==";
+        // ==========================================
+        // DATABASE PIN & VARIABEL GLOBAL
+        // ==========================================
+        const userDatabase = {
+            '2333': { name: 'Nizar', roles: ['kurir', 'kasir'] }, 
+            '2222': { name: 'Khotif', roles: ['kurir', 'kasir'] },
+            '2121': { name: 'Endang', roles: ['owner', 'kasir'] }, 
+            '9999': { name: 'Owner', roles: ['owner', 'kasir', 'kurir'] },
+            '2006': { name: 'Hafiz', roles: ['owner', 'kasir'] }, 
+            '2000': { name: 'Ayu', roles: ['owner', 'kasir'] }
+        };
+        
+        let currentUser = null, adminCart = [], selectedMethod = '', totalDiscount = 0, currentlyOpenChatPhone = null;
+
+        // KONEKSI FILE GAMBAR QRIS DIUBAH KE IMAGE_2.PNG
+        const MY_QRIS_IMAGE = "image_2.png";
 
         function setMethod(method) { 
             selectedMethod = method; 
@@ -330,7 +345,7 @@
             }); 
             document.getElementById('btnMetode_'+method).classList.add('bg-blue-600', 'text-white', 'border-blue-500'); 
 
-            // TAMPILKAN QRIS ASLI JIKA PILIH QRIS
+            // TAMPILKAN QRIS JIKA PILIH QRIS
             if(method === 'QRIS') {
                 document.getElementById('qrisImage').src = MY_QRIS_IMAGE;
                 document.getElementById('qrisContainer').classList.remove('hidden');
@@ -431,6 +446,7 @@
             const price = parseInt(raw.split('|')[0]), name = raw.split('|')[1], unit = raw.split('|')[2], qty = parseFloat(document.getElementById('posItemQty').value);
             if(qty > 0) { adminCart.push({ name, price, qty, unit, sub: price * qty }); renderAdminCart(); }
         }
+        
         function removeCart(index) { adminCart.splice(index, 1); renderAdminCart(); }
 
         function renderAdminCart() {
