@@ -23,22 +23,17 @@
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Fresh Laundry Glass Effect */
         .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.8); }
         .premium-shadow { box-shadow: 0 10px 40px -10px rgba(14, 165, 233, 0.15); }
         
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Bubble Background Pattern */
         .bg-bubbles { background-image: radial-gradient(rgba(14, 165, 233, 0.1) 2px, transparent 2px); background-size: 30px 30px; }
 
         select optgroup { font-weight: 700; color: #0f172a; background: #f1f5f9; }
         select option { font-weight: 500; color: #334155; background: white; }
 
-        /* =========================================
-           PENGATURAN KHUSUS CETAK THERMAL 
-           ========================================= */
         #thermalReceipt { display: none; } 
 
         @media print {
@@ -105,7 +100,6 @@
                         </li>
                         <li onclick="switchAdminTab('kurir')" data-roles="kurir,kasir,owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all relative group">
                             <i class="fas fa-motorcycle w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Tugas & Kurir</span>
-                            <span id="kurirBadge" class="absolute right-4 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">Order</span>
                         </li>
                         <li onclick="switchAdminTab('mesin')" data-roles="kasir,owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all group"><i class="fas fa-washing-machine w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Ruang Mesin</span></li>
                         <li onclick="switchAdminTab('stok')" data-roles="owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all group"><i class="fas fa-boxes-stacked w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Gudang & PO</span></li>
@@ -209,7 +203,6 @@
                                         <button onclick="setMethod('QRIS')" id="btnMetode_QRIS" class="border-2 border-slate-700 rounded-xl p-4 font-bold text-sm text-slate-300 hover:bg-slate-800 transition-colors"><i class="fas fa-qrcode text-blue-400 mb-2 text-xl block"></i>QRIS</button>
                                     </div>
 
-                                    <!-- FOTO QRIS TERSEMASANG (IMAGE 3) -->
                                     <div id="qrisContainer" class="hidden fade-in bg-white/10 p-4 rounded-xl border border-white/20 text-center mt-4">
                                         <p class="text-xs font-bold text-cyan-300 mb-3 uppercase tracking-widest">Scan QRIS untuk Membayar</p>
                                         <img id="qrisImage" class="mx-auto rounded-lg bg-white p-2 shadow-sm mb-2" alt="Foto QRIS Rizqiyya" style="width: 180px; height: 180px; object-fit: contain;">
@@ -255,11 +248,12 @@
                     </div>
                 </div>
                 
-                <!-- TAB: MESIN -->
+                <!-- TAB: MESIN (DIPERBARUI DENGAN TOMBOL STATUS TRACKING) -->
                 <div id="admin-tab-mesin" class="admin-tab-content hidden fade-in max-w-7xl mx-auto">
                     <div class="glass-panel p-8 rounded-[2rem] premium-shadow min-h-[500px]">
-                        <h3 class="font-extrabold text-xl text-slate-800 mb-6 border-b border-slate-200/60 pb-4"><i class="fas fa-washing-machine text-cyan-500 mr-3"></i>Antrean Cucian (Waitlist)</h3>
-                        <div id="waitlistContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 pr-2"></div>
+                        <h3 class="font-extrabold text-xl text-slate-800 mb-6 border-b border-slate-200/60 pb-4"><i class="fas fa-washing-machine text-cyan-500 mr-3"></i>Papan Kerja Ruang Mesin</h3>
+                        <!-- Container untuk daftar cucian -->
+                        <div id="waitlistContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5 pr-2"></div>
                     </div>
                 </div>
 
@@ -328,7 +322,7 @@
 
     <script>
         let currentUser = null, adminCart = [], selectedMethod = '', totalDiscount = 0;
-        const MY_QRIS_IMAGE = "image_3.png";
+        const MY_QRIS_IMAGE = "image_3.png"; //
 
         function selectRole(role) {
             document.getElementById('roleSelection').classList.add('hidden');
@@ -519,7 +513,7 @@
                         if(!formattedPhone.startsWith('+')) formattedPhone = '+' + formattedPhone;
                         
                         const listItems = adminCart.map(c => `- ${c.name} (${c.qty})`).join('%0A');
-                        const msg = `Halo *${custNameInput}*,%0A%0ATerima kasih telah mempercayakan cucian Anda di *Rizqiyya Laundry*.%0A%0A*Nota:* ${inv}%0A*Layanan:*%0A${listItems}%0A*Total Tagihan:* Rp ${grand.toLocaleString('id-ID')}%0A%0ACucian Anda sedang kami proses dengan sepenuh hati.%0A%0A_Bersih, Wangi, Sepenuh Hati_`;
+                        const msg = `Halo *${custNameInput}*,%0A%0ATerima kasih telah mempercayakan cucian Anda di *Rizqiyya Laundry*.%0A%0A*Nota:* ${inv}%0A*Layanan:*%0A${listItems}%0A*Total Tagihan:* Rp ${grand.toLocaleString('id-ID')}%0A%0ACucian Anda saat ini masuk dalam status *Antrean Mesin*. Kami akan mengabari Anda jika cucian sudah selesai.%0A%0A_Bersih, Wangi, Sepenuh Hati_`;
                         
                         setTimeout(() => { window.open(`https://wa.me/${formattedPhone.replace('+','')}?text=${msg}`, '_blank'); }, 500);
                     }
@@ -592,20 +586,95 @@
         function exportToExcel() {
             let orders = JSON.parse(localStorage.getItem('rizqiyya_db_orders')) || [];
             if(orders.length === 0) return Swal.fire('Kosong', 'Belum ada data transaksi.', 'info');
-            let csv = "ID Nota,Pelanggan,Total Rp,Metode,Pencuci,Berat (Kg),Tanggal\n";
-            orders.forEach(o => { csv += `${o.id},${o.customer},${o.total},${o.method || '-'},${o.washer},${o.weight},${new Date(o.date).toLocaleString('id-ID')}\n`; });
+            let csv = "ID Nota,Pelanggan,Total Rp,Metode,Pencuci,Berat (Kg),Status,Tanggal\n";
+            orders.forEach(o => { csv += `${o.id},${o.customer},${o.total},${o.method || '-'},${o.washer},${o.weight},${o.status},${new Date(o.date).toLocaleString('id-ID')}\n`; });
             let blob = new Blob([csv], { type: 'text/csv' }), a = document.createElement('a');
             a.href = window.URL.createObjectURL(blob); a.download = 'Laporan_Rizqiyya.csv'; a.click();
         }
 
+        // ==========================================
+        // FITUR BARU: MANAJEMEN STATUS RUANG MESIN
+        // ==========================================
         function loadAdminWaitlist() {
             let orders = JSON.parse(localStorage.getItem('rizqiyya_db_orders')) || [];
-            let waiting = orders.filter(o => o.status === 'menunggu_mesin');
+            // Ambil semua order yang BUKAN status Selesai
+            let activeOrders = orders.filter(o => o.status !== 'selesai');
             const container = document.getElementById('waitlistContainer');
-            if(!waiting.length) return container.innerHTML = `<div class="text-center text-slate-400 mt-10 font-medium">Antrean mesin kosong.</div>`;
+            
+            if(!activeOrders.length) {
+                return container.innerHTML = `<div class="text-center text-slate-400 mt-10 font-medium col-span-1 md:col-span-2">Tidak ada cucian yang sedang diproses di ruang mesin.</div>`;
+            }
+            
             let html = '';
-            waiting.forEach(o => { html += `<div class="bg-white p-5 rounded-2xl border-2 border-slate-100 shadow-sm relative"><div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div><div class="flex justify-between pl-2 mb-2"><div><span class="text-[10px] font-bold text-slate-400">${o.id}</span><h4 class="font-extrabold text-slate-800">${o.customer}</h4></div><span class="bg-amber-100 text-amber-700 text-[10px] px-2.5 py-1 rounded-full font-bold uppercase h-fit">Antre</span></div><p class="text-xs text-slate-500 pl-2 mb-2 font-medium">${o.items.map(i=>i.name).join(', ')}</p><p class="text-xs bg-slate-50 p-2 rounded-lg ml-2 font-medium w-fit">Staf: <b class="text-slate-700">${o.washer}</b></p></div>`; });
+            // Tampilkan kotak order sesuai urutan masuk
+            activeOrders.forEach(o => { 
+                let badge = '', borderColor = '', nextBtn = '';
+                
+                if(o.status === 'menunggu_mesin') {
+                    badge = `<span class="bg-amber-100 text-amber-700 text-[10px] px-2.5 py-1 rounded-full font-bold uppercase h-fit">Antre</span>`;
+                    borderColor = 'bg-amber-400';
+                    nextBtn = `<button onclick="updateOrderStatus('${o.id}', 'dicuci')" class="w-full mt-3 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 py-2.5 rounded-xl text-xs font-bold transition-colors"><i class="fas fa-tshirt mr-1"></i> Mulai Cuci</button>`;
+                
+                } else if(o.status === 'dicuci') {
+                    badge = `<span class="bg-blue-100 text-blue-700 text-[10px] px-2.5 py-1 rounded-full font-bold uppercase h-fit">Dicuci</span>`;
+                    borderColor = 'bg-blue-400';
+                    nextBtn = `<button onclick="updateOrderStatus('${o.id}', 'disetrika')" class="w-full mt-3 bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white border border-purple-200 py-2.5 rounded-xl text-xs font-bold transition-colors"><i class="fas fa-fire mr-1"></i> Mulai Setrika</button>`;
+                
+                } else if(o.status === 'disetrika') {
+                    badge = `<span class="bg-purple-100 text-purple-700 text-[10px] px-2.5 py-1 rounded-full font-bold uppercase h-fit">Disetrika</span>`;
+                    borderColor = 'bg-purple-400';
+                    nextBtn = `<button onclick="updateOrderStatus('${o.id}', 'selesai')" class="w-full mt-3 bg-emerald-500 text-white hover:bg-emerald-600 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-colors"><i class="fab fa-whatsapp text-sm mr-1"></i> Selesai & Kirim WA</button>`;
+                }
+
+                html += `<div class="bg-white p-5 rounded-2xl border-2 border-slate-100 shadow-sm relative flex flex-col">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 ${borderColor} rounded-l-2xl"></div>
+                            <div class="flex justify-between pl-2 mb-2">
+                                <div><span class="text-[10px] font-bold text-slate-400">${o.id}</span><h4 class="font-extrabold text-slate-800">${o.customer}</h4></div>
+                                ${badge}
+                            </div>
+                            <p class="text-xs text-slate-500 pl-2 mb-2 font-medium flex-1">${o.items.map(i=>i.name).join(', ')}</p>
+                            <p class="text-[10px] bg-slate-50 p-2 rounded-lg ml-2 font-medium w-fit mb-1">Staf: <b class="text-slate-700">${o.washer}</b></p>
+                            <div class="pl-2 pr-1">${nextBtn}</div>
+                         </div>`; 
+            });
             container.innerHTML = html;
+        }
+
+        // Fungsi mengubah status pesanan dari tombol
+        function updateOrderStatus(id, newStatus) {
+            let orders = JSON.parse(localStorage.getItem('rizqiyya_db_orders')) || [];
+            let orderIdx = orders.findIndex(o => o.id === id);
+            
+            if(orderIdx > -1) {
+                // Ubah status dan simpan ke memori
+                orders[orderIdx].status = newStatus;
+                localStorage.setItem('rizqiyya_db_orders', JSON.stringify(orders));
+                
+                // Segarkan tampilan UI Ruang Mesin
+                loadAdminWaitlist();
+                
+                // JIKA SELESAI, otomatis buka WhatsApp untuk mengabari Pelanggan
+                if(newStatus === 'selesai') {
+                    let o = orders[orderIdx];
+                    if(o.phone) {
+                        let formattedPhone = o.phone;
+                        if(formattedPhone.startsWith('0')) formattedPhone = '62' + formattedPhone.substring(1);
+                        if(!formattedPhone.startsWith('+')) formattedPhone = '+' + formattedPhone;
+                        
+                        let msg = `Halo *${o.customer}*,%0A%0ACucian Anda dengan nomor nota *${o.id}* sudah *SELESAI* dicuci dan disetrika, serta sudah wangi dan rapi! 🧺✨%0A%0ASilakan diambil di toko kami atau tunggu kurir kami mengantarnya (jika Anda memilih layanan antar).%0A%0ATerima kasih telah mempercayakan pakaian Anda di *Rizqiyya Laundry*.%0A_Bersih, Wangi, Sepenuh Hati_`;
+                        
+                        window.open(`https://wa.me/${formattedPhone.replace('+','')}?text=${msg}`, '_blank');
+                    } else {
+                        // Jika pelanggan tidak memberikan nomor WA saat kasir awal
+                        Swal.fire({
+                            toast: true, position: 'top-end', icon: 'success', 
+                            title: 'Cucian Selesai!', 
+                            text: 'Namun Customer tidak memiliki data nomor WA.', 
+                            showConfirmButton: false, timer: 4000
+                        });
+                    }
+                }
+            }
         }
 
         function loadAdminStock() {
