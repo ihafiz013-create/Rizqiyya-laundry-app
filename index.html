@@ -94,21 +94,21 @@
                 </div>
                 <div class="px-4 py-6 overflow-y-auto hide-scroll">
                     <ul class="space-y-2">
-                        <li onclick="switchAdminTab('dashboard')" data-role="owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all group"><i class="fas fa-chart-pie w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Dashboard</span></li>
-                        <li onclick="switchAdminTab('pos')" data-role="kasir" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all relative group">
+                        <li onclick="switchAdminTab('dashboard')" data-roles="owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all group"><i class="fas fa-chart-pie w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Dashboard</span></li>
+                        <li onclick="switchAdminTab('pos')" data-roles="kasir,owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all relative group">
                             <i class="fas fa-cash-register w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Kasir (POS)</span>
                             <span id="posBadge" class="absolute right-4 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">Draft</span>
                         </li>
-                        <li onclick="switchAdminTab('chat')" data-role="kasir" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all relative group">
+                        <li onclick="switchAdminTab('chat')" data-roles="kasir,owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all relative group">
                             <i class="fas fa-comments w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Live Chat CS</span>
                             <span id="chatBadgeAdmin" class="absolute right-4 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden animate-pulse">Baru</span>
                         </li>
-                        <li onclick="switchAdminTab('kurir')" data-role="kurir" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all relative group">
-                            <i class="fas fa-motorcycle w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Radar Kurir</span>
+                        <li onclick="switchAdminTab('kurir')" data-roles="kurir,kasir,owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all relative group">
+                            <i class="fas fa-motorcycle w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Tugas & Kurir</span>
                             <span id="kurirBadge" class="absolute right-4 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">Order</span>
                         </li>
-                        <li onclick="switchAdminTab('mesin')" data-role="kasir" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all group"><i class="fas fa-washing-machine w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Ruang Mesin</span></li>
-                        <li onclick="switchAdminTab('stok')" data-role="owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all group"><i class="fas fa-boxes-stacked w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Gudang & PO</span></li>
+                        <li onclick="switchAdminTab('mesin')" data-roles="kasir,owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all group"><i class="fas fa-washing-machine w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Ruang Mesin</span></li>
+                        <li onclick="switchAdminTab('stok')" data-roles="owner" class="admin-nav-item px-4 py-3.5 rounded-xl hover:bg-slate-800 cursor-pointer flex items-center transition-all group"><i class="fas fa-boxes-stacked w-6 group-hover:text-cyan-400"></i> <span class="hidden md:block ml-3 font-semibold">Gudang & PO</span></li>
                     </ul>
                 </div>
             </div>
@@ -117,7 +117,7 @@
                     <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold" id="userInitialNav">U</div>
                     <div><p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Sesi Aktif</p><p class="text-sm font-bold text-white" id="displayLoginName">User</p></div>
                 </div>
-                <button onclick="closeShiftAdmin()" class="w-full bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white py-3 rounded-xl font-bold transition-colors"><i class="fas fa-power-off"></i> <span class="hidden md:block ml-2">Tutup Shift</span></button>
+                <button onclick="closeShiftAdmin()" class="w-full bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white py-3 rounded-xl font-bold transition-colors"><i class="fas fa-power-off"></i> <span class="hidden md:block ml-2">Tutup Sesi / Keluar</span></button>
             </div>
         </nav>
 
@@ -248,18 +248,28 @@
                     </div>
                 </div>
 
-                <!-- TAB: RADAR KURIR -->
+                <!-- TAB: RADAR KURIR (BISA DIAKSES KASIR JUGA) -->
                 <div id="admin-tab-kurir" class="admin-tab-content hidden fade-in max-w-7xl mx-auto">
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                         <div class="lg:col-span-4 space-y-6">
-                            <div class="glass-panel p-8 rounded-[2rem] premium-shadow bg-cyan-50/50">
-                                <h3 class="font-extrabold text-xl text-slate-800 mb-2"><i class="fas fa-satellite-dish text-cyan-500 mr-2"></i>Dispatch Manual</h3>
-                                <p class="text-sm text-slate-500 mb-6 font-medium">Kirim koordinat penjemputan ke WA Kurir.</p>
+                            <!-- BAGIAN DISPATCH MANUAL (KIRIM TUGAS JEMPUT/ANTAR) -->
+                            <div class="glass-panel p-8 rounded-[2rem] premium-shadow bg-cyan-50/50 border border-cyan-100">
+                                <h3 class="font-extrabold text-xl text-slate-800 mb-2"><i class="fas fa-motorcycle text-cyan-500 mr-2"></i>Beri Tugas Kurir</h3>
+                                <p class="text-sm text-slate-500 mb-6 font-medium">Kirim tugas Jemput/Antar ke WA Kurir.</p>
                                 <div class="space-y-4">
-                                    <input type="text" id="dispatchCustName" class="w-full border-0 p-3 rounded-xl bg-white shadow-sm outline-none font-medium" placeholder="Nama Customer">
-                                    <textarea id="dispatchAddress" rows="3" class="w-full border-0 p-3 rounded-xl bg-white shadow-sm outline-none font-medium text-sm" placeholder="Alamat Lengkap"></textarea>
-                                    <select id="dispatchCourierSelect" class="w-full border-0 p-3 rounded-xl bg-white shadow-sm font-bold text-slate-700"><option value="6285701994169">Hafiz</option><option value="6287886000529">Nizar</option><option value="6282135313693">Khotif</option></select>
-                                    <button onclick="sendLocationToCourier()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all"><i class="fab fa-whatsapp mr-2 text-lg"></i> Kirim Tugas (WA)</button>
+                                    <select id="dispatchType" class="w-full border-2 border-cyan-200 p-3.5 rounded-xl bg-white shadow-sm outline-none font-extrabold text-cyan-700">
+                                        <option value="JEMPUT">🧺 TUGAS: JEMPUT CUCIAN</option>
+                                        <option value="ANTAR">🚚 TUGAS: ANTAR CUCIAN</option>
+                                    </select>
+                                    <input type="text" id="dispatchCustName" class="w-full border-0 p-3.5 rounded-xl bg-white shadow-sm outline-none font-medium" placeholder="Nama Customer">
+                                    <textarea id="dispatchAddress" rows="3" class="w-full border-0 p-3.5 rounded-xl bg-white shadow-sm outline-none font-medium text-sm" placeholder="Alamat Lengkap Tujuan"></textarea>
+                                    <select id="dispatchCourierSelect" class="w-full border-0 p-3.5 rounded-xl bg-white shadow-sm font-bold text-slate-700">
+                                        <option value="">-- Pilih Kurir --</option>
+                                        <option value="6282135313693">Khotif</option>
+                                        <option value="6287886000529">Nizar</option>
+                                        <option value="6285701994169">Hafiz</option>
+                                    </select>
+                                    <button onclick="sendLocationToCourier()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-md transition-all"><i class="fab fa-whatsapp mr-2 text-lg"></i> Kirim Tugas (Notif WA)</button>
                                 </div>
                             </div>
                         </div>
@@ -342,7 +352,7 @@
         // ==========================================
         let currentUser = null, adminCart = [], selectedMethod = '', totalDiscount = 0, currentlyOpenChatPhone = null;
 
-        // KONEKSI FILE GAMBAR QRIS
+        // KONEKSI FILE GAMBAR QRIS (SUDAH TER-REFRESH)
         const MY_QRIS_IMAGE = "image_2.png";
 
         // ==========================================
@@ -378,21 +388,20 @@
 
             currentUser = { name: name, roles: rolesArr };
 
-            // Sembunyikan layar login dan buka aplikasi
             document.getElementById('adminLoginScreen').classList.add('hidden');
             document.getElementById('adminMainApp').classList.remove('hidden');
             
-            // Setel nama staf di pojok kanan bawah Sidebar
             document.getElementById('displayLoginName').innerText = currentUser.name;
             document.getElementById('userInitialNav').innerText = currentUser.name.charAt(0);
             
-            // Atur menu sidebar berdasarkan peran
+            // Tampilkan menu sidebar berdasarkan hak akses (roles)
             document.querySelectorAll('.admin-nav-item').forEach(el => {
-                const reqRole = el.getAttribute('data-role');
-                el.style.display = (currentUser.roles.includes('owner') || currentUser.roles.includes(reqRole)) ? 'flex' : 'none';
+                const reqRoles = el.getAttribute('data-roles').split(',');
+                // Cek apakah user saat ini memiliki salah satu dari role yang diizinkan di tab tersebut
+                const hasAccess = currentUser.roles.some(r => reqRoles.includes(r));
+                el.style.display = hasAccess ? 'flex' : 'none';
             });
             
-            // Buka tab default
             checkAdminUnreadChats(); loadAdminPOSDrafts();
             if(currentUser.roles.includes('owner')) switchAdminTab('dashboard'); 
             else if(currentUser.roles.includes('kasir')) switchAdminTab('pos'); 
@@ -460,7 +469,7 @@
         function switchAdminTab(tabId) {
             document.querySelectorAll('.admin-tab-content').forEach(tab => tab.classList.add('hidden'));
             document.getElementById('admin-tab-' + tabId).classList.remove('hidden');
-            const titles = { 'dashboard': 'Dashboard Analitik', 'pos': 'Kasir POS', 'mesin': 'Ruang Mesin', 'kurir': 'Radar Kurir', 'stok': 'Manajemen Gudang', 'chat': 'Live Chat CS' };
+            const titles = { 'dashboard': 'Dashboard Analitik', 'pos': 'Kasir POS', 'mesin': 'Ruang Mesin', 'kurir': 'Tugas & Kurir', 'stok': 'Manajemen Gudang', 'chat': 'Live Chat CS' };
             document.getElementById('adminPageTitle').innerText = titles[tabId];
 
             if(tabId === 'dashboard') loadAdminDashboard(); if(tabId === 'pos') loadAdminPOSDrafts(); if(tabId === 'chat') loadAdminChatList();
@@ -624,11 +633,32 @@
             if(idx > -1) { requests[idx].status = 'selesai'; localStorage.setItem('rizqiyya_pickup_requests', JSON.stringify(requests)); loadAdminCourierTasks(); Swal.fire({toast:true, position:'top-end', icon:'success', title:'Masuk Draft Kasir', showConfirmButton:false, timer:2000}); }
         }
         
+        // FUNGSI BARU: KIRIM TUGAS (JEMPUT ATAU ANTAR) KE WHATSAPP KURIR
         function sendLocationToCourier() {
-            const custName = document.getElementById('dispatchCustName').value, address = document.getElementById('dispatchAddress').value, courierPhone = document.getElementById('dispatchCourierSelect').value;
+            const taskType = document.getElementById('dispatchType').value;
+            const custName = document.getElementById('dispatchCustName').value;
+            const address = document.getElementById('dispatchAddress').value;
+            const courierPhone = document.getElementById('dispatchCourierSelect').value;
+            
             if(!custName || !address) return Swal.fire('Belum Lengkap', 'Isi nama dan alamat customer!', 'warning');
-            window.location.href = `https://wa.me/${courierPhone}?text=Tugas Penjemputan Baru!%0A%0A👤 *Customer:* ${custName}%0A📍 *Alamat:* ${address}%0A🗺️ *Maps:* https://maps.google.com/?q=${encodeURIComponent(address)}`;
-            setTimeout(() => { document.getElementById('dispatchCustName').value = ''; document.getElementById('dispatchAddress').value = ''; }, 1000);
+            if(!courierPhone) return Swal.fire('Pilih Kurir', 'Silakan pilih Kurir yang akan ditugaskan!', 'warning');
+
+            let waText = "";
+            if(taskType === 'JEMPUT') {
+                waText = `🧺 *TUGAS PENJEMPUTAN BARU!*%0A%0A👤 *Customer:* ${custName}%0A📍 *Alamat:* ${address}%0A🗺️ *Maps:* https://maps.google.com/?q=${encodeURIComponent(address)}%0A%0AMohon segera dijemput ke lokasi pelanggan ya!`;
+            } else {
+                waText = `🚚 *TUGAS PENGANTARAN BARU!*%0A%0A👤 *Customer:* ${custName}%0A📍 *Alamat:* ${address}%0A🗺️ *Maps:* https://maps.google.com/?q=${encodeURIComponent(address)}%0A%0ACucian sudah siap! Mohon segera diantar ke lokasi pelanggan ya!`;
+            }
+
+            // Buka tab baru untuk WhatsApp
+            window.open(`https://wa.me/${courierPhone}?text=${waText}`, '_blank');
+            
+            // Bersihkan form setelah diklik
+            setTimeout(() => { 
+                document.getElementById('dispatchCustName').value = ''; 
+                document.getElementById('dispatchAddress').value = ''; 
+                document.getElementById('dispatchCourierSelect').value = '';
+            }, 1000);
         }
 
         function loadAdminDashboard() {
