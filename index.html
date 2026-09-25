@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ERP Admin - Rizqiyya Laundry</title>
+    
+    <!-- PWA Setup -->
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Tailwind & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons, Alerts, Charts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Thermal Print Styles (Hidden in normal view) */
+        @media print {
+            body * { visibility: hidden; }
+            #thermalReceipt, #thermalReceipt * { visibility: visible; font-family: monospace; }
+            #thermalReceipt { position: absolute; left: 0; top: 0; width: 58mm; margin: 0; padding: 5px; font-size: 12px; color: black; background: white; }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 bg-gray-900">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center">
+            <div class="w-16 h-16 bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-lock text-2xl text-white"></i>
+            </div>
+            <h1 class="text-xl font-bold text-gray-800 mb-1">Rizqiyya Admin ERP</h1>
+            <p class="text-gray-500 mb-6 text-sm">Masukkan PIN Akses Karyawan</p>
+            
+            <input type="password" id="adminPin" placeholder="****" class="w-full text-center text-3xl tracking-widest px-4 py-3 border-2 border-gray-200 rounded-xl mb-4 focus:border-blue-600 outline-none" maxlength="4">
+            
+            <button onclick="loginAdmin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition">
+                Masuk Sistem
+            </button>
+            <p class="text-xs text-gray-400 mt-4">Demo PIN: 1234</p>
+        </div>
+    </div>
+
+    <!-- MAIN APP SCREEN -->
+    <div id="mainApp" class="hidden flex h-screen overflow-hidden bg-gray-100">
+        
+        <!-- Sidebar Navigation -->
+        <nav class="w-20 md:w-64 bg-blue-900 text-white flex flex-col justify-between shadow-2xl z-20">
+            <div>
+                <div class="h-20 flex items-center justify-center border-b border-blue-800">
+                    <i class="fas fa-tshirt text-3xl md:mr-3"></i>
+                    <h1 class="font-bold text-xl hidden md:block">Rizqiyya ERP</h1>
+                </div>
+                <ul class="py-4 space-y-2">
+                    <li onclick="switchTab('dashboard')" class="px-6 py-3 hover:bg-blue-800 cursor-pointer flex items-center transition"><i class="fas fa-home w-6"></i> <span class="hidden md:block ml-2">Dashboard</span></li>
+                    <li onclick="switchTab('pos')" class="px-6 py-3 hover:bg-blue-800 cursor-pointer flex items-center transition"><i class="fas fa-cash-register w-6"></i> <span class="hidden md:block ml-2">Kasir (POS)</span></li>
+                    <li onclick="switchTab('mesin')" class="px-6 py-3 hover:bg-blue-800 cursor-pointer flex items-center transition"><i class="fas fa-washing-machine w-6"></i> <span class="hidden md:block ml-2">Mesin & Antrean</span></li>
+                    <li onclick="switchTab('crm')" class="px-6 py-3 hover:bg-blue-800 cursor-pointer flex items-center transition"><i class="fas fa-users w-6"></i> <span class="hidden md:block ml-2">CRM & Piutang</span></li>
+                    <li onclick="switchTab('stok')" class="px-6 py-3 hover:bg-blue-800 cursor-pointer flex items-center transition"><i class="fas fa-boxes w-6"></i> <span class="hidden md:block ml-2">Stok Bahan</span></li>
+                </ul>
+            </div>
+            <div class="border-t border-blue-800 p-4">
+                <button onclick="logoutAdmin()" class="w-full flex items-center justify-center text-red-400 hover:text-red-300 transition">
+                    <i class="fas fa-sign-out-alt"></i> <span class="hidden md:block ml-2">Keluar Shift</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto hide-scroll relative">
+            
+            <!-- Topbar -->
+            <header class="h-20 bg-white shadow-sm flex items-center justify-between px-8 sticky top-0 z-10">
+                <h2 id="pageTitle" class="text-xl font-bold text-gray-800">Dashboard</h2>
+                <div class="flex items-center gap-4">
+                    <div class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold flex items-center">
+                        <span class="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span> Kasir Aktif
+                    </div>
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-800 font-bold">
+                        A
+                    </div>
+                </div>
+            </header>
+
+            <!-- TAB: DASHBOARD -->
+            <div id="tab-dashboard" class="p-8 space-y-6 tab-content block">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-blue-500">
+                        <p class="text-gray-500 text-sm mb-1">Omset Hari Ini</p>
+                        <h3 class="text-2xl font-bold text-gray-800">Rp 450.000</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-green-500">
+                        <p class="text-gray-500 text-sm mb-1">Cucian Selesai</p>
+                        <h3 class="text-2xl font-bold text-gray-800">12 Nota</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-yellow-500">
+                        <p class="text-gray-500 text-sm mb-1">Piutang (Belum Lunas)</p>
+                        <h3 class="text-2xl font-bold text-gray-800">Rp 125.000</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500">
+                        <p class="text-gray-500 text-sm mb-1">Sisa Deterjen</p>
+                        <h3 class="text-2xl font-bold text-gray-800">3.5 Liter</h3>
+                    </div>
+                </div>
+                <!-- Chart -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-80">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- TAB: KASIR (POS) -->
+            <div id="tab-pos" class="p-8 tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Form Input -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h3 class="font-bold text-lg mb-4 text-blue-900 border-b pb-2">Buat Pesanan Baru</h3>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="text-xs text-gray-500 block mb-1">Nama Pelanggan</label>
+                                    <input type="text" id="posName" class="w-full border p-2.5 rounded-lg bg-gray-50 outline-none focus:border-blue-500" placeholder="Budi / 0812...">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 block mb-1">Layanan</label>
+                                    <select id="posService" class="w-full border p-2.5 rounded-lg bg-gray-50 outline-none" onchange="calculateTotal()">
+                                        <option value="6000">Kiloan Reguler (Rp 6.000/Kg)</option>
+                                        <option value="8000">Kiloan Express (Rp 8.000/Kg)</option>
+                                        <option value="35000">Bedcover (Rp 35.000/Pcs)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="text-xs text-gray-500 block mb-1">Berat (Kg) / Jumlah</label>
+                                    <div class="flex gap-2">
+                                        <input type="number" id="posWeight" value="1" class="w-full border p-2.5 rounded-lg bg-gray-50 outline-none text-center" oninput="calculateTotal()">
+                                        <button onclick="syncTimbangan()" class="bg-gray-800 text-white px-4 rounded-lg hover:bg-gray-700" title="Ambil Data Timbangan Digital"><i class="fas fa-weight"></i></button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 block mb-1">Lokasi Rak</label>
+                                    <input type="text" id="posRak" class="w-full border p-2.5 rounded-lg bg-gray-50 outline-none uppercase" placeholder="RAK-A1">
+                                </div>
+                            </div>
+                            
+                            <div class="border-t pt-4 mt-4 flex items-center justify-between">
+                                <button onclick="aiKamera()" class="text-sm bg-purple-100 text-purple-700 px-4 py-2 rounded-lg font-semibold hover:bg-purple-200 transition">
+                                    <i class="fas fa-camera mr-1"></i> AI Cek Pakaian
+                                </button>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-500 mb-1">Total Tagihan</p>
+                                    <h2 class="text-3xl font-bold text-gray-800" id="posTotal">Rp 6.000</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment & Checkout -->
+                    <div class="bg-gray-800 text-white p-6 rounded-2xl shadow-lg flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-lg mb-6 border-b border-gray-700 pb-2">Metode Pembayaran</h3>
+                            <div class="grid grid-cols-2 gap-3 mb-6">
+                                <button onclick="setPayment('TUNAI')" class="border border-gray-600 rounded-xl p-3 hover:bg-blue-600 transition text-sm"><i class="fas fa-money-bill-wave mb-2 text-xl block"></i>TUNAI</button>
+                                <button onclick="setPayment('QRIS')" class="border border-blue-500 bg-blue-600 rounded-xl p-3 shadow-lg text-sm font-bold"><i class="fas fa-qrcode mb-2 text-xl block"></i>QRIS</button>
+                                <button onclick="setPayment('KASBON')" class="col-span-2 border border-gray-600 rounded-xl p-3 hover:bg-yellow-600 transition text-sm text-yellow-400"><i class="fas fa-book mb-2 text-xl block"></i>KASBON (BAYAR NANTI)</button>
+                            </div>
+                        </div>
+                        <button onclick="prosesPesanan()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg flex items-center justify-center">
+                            <i class="fas fa-print mr-2"></i> Cetak & Proses
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- TAB: MESIN & ANTREAN -->
+            <div id="tab-mesin" class="p-8 tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Waitlist -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-list-ol mr-2 text-blue-500"></i>Antrean Cucian (Waitlist)</h3>
+                        <div class="space-y-3">
+                            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 flex justify-between items-center">
+                                <div>
+                                    <p class="font-bold text-sm">#INV-002 (Budi)</p>
+                                    <p class="text-xs text-gray-500">Kiloan - 3 Kg</p>
+                                </div>
+                                <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-bold">Menunggu</span>
+                            </div>
+                            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 flex justify-between items-center" id="newQueueItem" style="display:none;">
+                                <div>
+                                    <p class="font-bold text-sm">#INV-003 (Baru)</p>
+                                    <p class="text-xs text-gray-500">Kiloan</p>
+                                </div>
+                                <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-bold">Menunggu</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mesin Slotting -->
+                    <div class="space-y-4">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-2xl text-gray-400" id="iconM1"><i class="fas fa-washing-machine"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800">Mesin Cuci 1</h4>
+                                    <p class="text-xs text-green-500 font-bold" id="statusM1">TERSEDIA</p>
+                                </div>
+                            </div>
+                            <button onclick="mulaiMesin('M1')" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-200 transition">Mulai (45m)</button>
+                        </div>
+                        
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-2xl text-gray-400" id="iconM2"><i class="fas fa-wind"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800">Mesin Pengering 1</h4>
+                                    <p class="text-xs text-green-500 font-bold" id="statusM2">TERSEDIA</p>
+                                </div>
+                            </div>
+                            <button onclick="mulaiMesin('M2')" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-200 transition">Mulai (60m)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: CRM & PIUTANG -->
+            <div id="tab-crm" class="p-8 tab-content hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Daftar Tagihan Pelanggan (Belum Lunas)</h3>
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-500">
+                            <tr>
+                                <th class="p-3">Pelanggan</th>
+                                <th class="p-3">Total Tagihan</th>
+                                <th class="p-3">Tanggal</th>
+                                <th class="p-3">Aksi (WhatsApp)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="p-3 font-medium">Bapak Andi (0812998877)</td>
+                                <td class="p-3 font-bold text-red-500">Rp 125.000</td>
+                                <td class="p-3 text-gray-500">23 Sep 2026</td>
+                                <td class="p-3">
+                                    <button onclick="tagihWA('62812998877', 'Bapak Andi', '125.000')" class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition"><i class="fab fa-whatsapp mr-1"></i> Tagih Instan</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: STOK BAHAN (SUPPLIER) -->
+            <div id="tab-stok" class="p-8 tab-content hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <h3 class="font-bold text-gray-800">Manajemen Stok & Pemesanan Otomatis</h3>
+                        <button onclick="pesanSupplier()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-green-700 transition">
+                            <i class="fab fa-whatsapp mr-2"></i> PO Supplier (621212345232)
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                        <div class="bg-red-50 border border-red-200 p-4 rounded-xl flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-red-600 font-bold mb-1">KRITIS</p>
+                                <p class="font-bold text-gray-800">Deterjen Cair</p>
+                            </div>
+                            <h2 class="text-2xl font-bold text-red-600">1.2 L</h2>
+                        </div>
+                        <div class="bg-green-50 border border-green-200 p-4 rounded-xl flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-green-600 font-bold mb-1">AMAN</p>
+                                <p class="font-bold text-gray-800">Parfum Laundry</p>
+                            </div>
+                            <h2 class="text-2xl font-bold text-green-600">8.5 L</h2>
+                        </div>
+                        <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-yellow-600 font-bold mb-1">MENIPIS</p>
+                                <p class="font-bold text-gray-800">Plastik Packing</p>
+                            </div>
+                            <h2 class="text-2xl font-bold text-yellow-600">25 Pcs</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- THERMAL RECEIPT FORMAT (Hidden normally, used for printing) -->
+    <div id="thermalReceipt" class="hidden">
+        <div style="text-align: center; border-bottom: 1px dashed black; padding-bottom: 5px; margin-bottom: 5px;">
+            <h2 style="margin: 0; font-size: 16px;">RIZQIYYA LAUNDRY</h2>
+            <p style="margin: 0; font-size: 10px;">Jl. Asem Baris Raya No. 22</p>
+            <p style="margin: 0; font-size: 10px;">WA: 0812-1234-5232</p>
+        </div>
+        <p style="margin: 2px 0;">INV: #INV-<span id="printInv"></span></p>
+        <p style="margin: 2px 0;">TGL: <span id="printDate"></span></p>
+        <p style="margin: 2px 0; border-bottom: 1px dashed black; padding-bottom: 5px;">PLG: <span id="printName"></span></p>
+        
+        <table style="width: 100%; margin-top: 5px;">
+            <tr><td id="printItemName">Kiloan Reguler</td></tr>
+            <tr>
+                <td><span id="printQty">1</span> x <span id="printPrice">6000</span></td>
+                <td style="text-align: right;"><span id="printTotal">6000</span></td>
+            </tr>
+        </table>
+        
+        <div style="border-top: 1px dashed black; margin-top: 5px; padding-top: 5px; text-align: right; font-weight: bold;">
+            TOTAL: Rp <span id="printFinalTotal">6.000</span>
+        </div>
+        <div style="text-align: center; margin-top: 10px; font-size: 10px;">
+            <p>Terima kasih!</p>
+            <p>Lacak di web pelanggan kami</p>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- 1. LOGIN & NAVIGATION ---
+        function loginAdmin() {
+            const pin = document.getElementById('adminPin').value;
+            if(pin === '1234') {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                initChart(); // Initialize chart when dashboard opens
+            } else {
+                Swal.fire({icon: 'error', title: 'Akses Ditolak', text: 'PIN Salah!'});
+            }
+        }
+
+        function logoutAdmin() {
+            Swal.fire({
+                title: 'Tutup Shift?',
+                text: "Sistem akan menghitung total uang di laci.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Tutup Shift'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.reload();
+                }
+            })
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            
+            const titles = { 'dashboard': 'Dashboard', 'pos': 'Kasir (POS)', 'mesin': 'Mesin & Antrean', 'crm': 'CRM & Piutang', 'stok': 'Stok Bahan' };
+            document.getElementById('pageTitle').innerText = titles[tabId];
+        }
+
+        // --- 2. POS & THERMAL PRINTER ---
+        let currentPrice = 6000;
+        let currentWeight = 1;
+        
+        function calculateTotal() {
+            currentPrice = parseInt(document.getElementById('posService').value);
+            currentWeight = parseFloat(document.getElementById('posWeight').value) || 0;
+            const total = currentPrice * currentWeight;
+            document.getElementById('posTotal').innerText = 'Rp ' + total.toLocaleString('id-ID');
+        }
+
+        function setPayment(method) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Metode Dipilih',
+                text: 'Menggunakan pembayaran: ' + method,
+                timer: 1000,
+                showConfirmButton: false
+            });
+        }
+
+        function syncTimbangan() {
+            Swal.fire({
+                title: 'Menyambungkan Bluetooth...',
+                timer: 1500,
+                showConfirmButton: false,
+                didOpen: () => { Swal.showLoading() }
+            }).then(() => {
+                document.getElementById('posWeight').value = "3.5"; // Mock weight
+                calculateTotal();
+            });
+        }
+
+        function aiKamera() {
+            Swal.fire({
+                title: 'Memindai Pakaian (AI)...',
+                timer: 2000,
+                showConfirmButton: false,
+                didOpen: () => { Swal.showLoading() }
+            }).then(() => {
+                Swal.fire({icon: 'info', title: 'Deteksi AI', text: 'Ditemukan: 15 Potong (Dominan Kaos, 2 Celana Jeans). Tidak ada noda luntur terdeteksi.'});
+            });
+        }
+
+        function prosesPesanan() {
+            const name = document.getElementById('posName').value || 'Pelanggan Walk-in';
+            const total = currentPrice * currentWeight;
+            const inv = Math.floor(1000 + Math.random() * 9000);
+            
+            // Prepare Thermal Data
+            document.getElementById('printInv').innerText = inv;
+            document.getElementById('printDate').innerText = new Date().toLocaleDateString('id-ID');
+            document.getElementById('printName').innerText = name;
+            document.getElementById('printQty').innerText = currentWeight;
+            document.getElementById('printPrice').innerText = currentPrice;
+            document.getElementById('printTotal').innerText = total;
+            document.getElementById('printFinalTotal').innerText = total.toLocaleString('id-ID');
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Transaksi Berhasil',
+                text: 'Pesanan #' + inv + ' masuk ke antrean.',
+                confirmButtonText: 'Cetak Struk (Thermal)'
+            }).then(() => {
+                // Trigger Browser Print for Thermal Div
+                const originalContents = document.body.innerHTML;
+                const printContents = document.getElementById('thermalReceipt').outerHTML;
+                
+                document.body.innerHTML = printContents;
+                document.getElementById('thermalReceipt').classList.remove('hidden');
+                
+                window.print();
+                
+                // Restore UI
+                window.location.reload(); 
+                
+                // (In a real SPA without reload, we would just reset the UI state. 
+                // Reload is used here to safely restore the full CSS state after browser print takeover).
+                
+                // Emit to Cross-Tab (Customer App)
+                localStorage.setItem('rizqiyya_order_update', JSON.stringify({id: 'INV-'+inv, status: 'Lunas', time: Date.now()}));
+            });
+        }
+
+        // --- 3. MESIN & ANTREAN ---
+        function mulaiMesin(id) {
+            const statusEl = document.getElementById('status' + id);
+            const iconEl = document.getElementById('icon' + id);
+            
+            if(statusEl.innerText !== 'TERSEDIA') {
+                Swal.fire('Perhatian', 'Mesin sedang berjalan!', 'warning');
+                return;
+            }
+
+            statusEl.innerText = 'BERJALAN (44:59)';
+            statusEl.classList.replace('text-green-500', 'text-red-500');
+            iconEl.classList.add('animate-spin', 'text-blue-500');
+            
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Mesin ' + id + ' diaktifkan',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+
+        // --- 4. WHATSAPP DIRECT REDIRECTS (FIXED - NO DELAY) ---
+        function tagihWA(phone, name, amount) {
+            // Langsung memformat teks dan redirect tanpa ada loading animasi/delay
+            const pesan = `Halo ${name},%0A%0AIni adalah pengingat dari sistem Rizqiyya Laundry.%0ATagihan Anda sebesar *Rp ${amount}* belum dilunasi.%0A%0AMohon segera diproses. Terima kasih!`;
+            window.location.href = `https://wa.me/${phone}?text=${pesan}`;
+        }
+
+        function pesanSupplier() {
+            // Target ke nomor yang diminta: 621212345232, langsung terbuka tanpa blokir
+            const pesan = `Halo Supplier,%0A%0ASaya admin Rizqiyya Laundry. Ingin request Purchase Order (PO) stok Deterjen dan Parfum untuk toko kami.%0A%0AMohon info ketersediaan.`;
+            window.location.href = `https://wa.me/621212345232?text=${pesan}`;
+        }
+
+        // --- 5. CHART DASHBOARD ---
+        function initChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+                    datasets: [{
+                        label: 'Omset (Ribuan Rp)',
+                        data: [350, 420, 200, 450, 500, 750, 800],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
