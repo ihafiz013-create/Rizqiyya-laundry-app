@@ -5,25 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ERP Admin - Rizqiyya Laundry</title>
     
-    <!-- PWA Setup -->
     <meta name="theme-color" content="#1e3a8a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     
-    <!-- Tailwind & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Icons, Alerts, Charts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Thermal Print Styles */
         @media print {
             body * { visibility: hidden; }
             #thermalReceipt, #thermalReceipt * { visibility: visible; font-family: monospace; }
@@ -31,26 +24,27 @@
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="text-gray-800" onload="initSystem()">
 
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 bg-gray-900">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center">
-            <div class="w-16 h-16 bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-lock text-2xl text-white"></i>
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 mt-2">
+                <i class="fas fa-fingerprint text-3xl text-blue-700"></i>
             </div>
-            <h1 class="text-xl font-bold text-gray-800 mb-1">Rizqiyya Admin ERP</h1>
-            <p class="text-gray-500 mb-6 text-sm">Masukkan PIN Akses Karyawan</p>
+            <h1 class="text-2xl font-bold text-gray-800 mb-1">Rizqiyya ERP</h1>
+            <p class="text-gray-500 mb-6 text-sm">Otentikasi Karyawan</p>
             
-            <input type="password" id="adminPin" placeholder="****" class="w-full text-center text-3xl tracking-widest px-4 py-3 border-2 border-gray-200 rounded-xl mb-4 focus:border-blue-600 outline-none" maxlength="4">
+            <input type="password" id="adminPin" placeholder="PIN" class="w-full text-center text-3xl tracking-[1em] px-4 py-4 border-2 border-gray-200 rounded-xl mb-4 focus:border-blue-600 outline-none transition" maxlength="4" autocomplete="off">
             
-            <button onclick="loginAdmin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition">
-                Masuk Sistem
+            <button onclick="loginAdmin()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg">
+                Masuk
             </button>
-            <div class="text-xs text-gray-400 mt-4 text-left leading-relaxed">
-                <b>Panduan PIN:</b><br>
-                Owner: 2323 | Endang: 2000<br>
-                Khotif: 2001 | Nizar: 2002 | Hafiz: 2006
+            <div class="text-xs text-gray-400 mt-6 text-left bg-gray-50 p-3 rounded-lg border border-gray-100">
+                <b>Akses PIN:</b><br>
+                2323 (Owner) | 2000 (Endang)<br>
+                2001 (Khotif) | 2002 (Nizar) | 2006 (Hafiz)
             </div>
         </div>
     </div>
@@ -59,285 +53,227 @@
     <div id="mainApp" class="hidden flex h-screen overflow-hidden bg-gray-100">
         
         <!-- Sidebar Navigation -->
-        <nav class="w-20 md:w-64 bg-blue-900 text-white flex flex-col justify-between shadow-2xl z-20">
+        <nav class="w-20 md:w-64 bg-slate-900 text-white flex flex-col justify-between shadow-2xl z-20 transition-all">
             <div>
-                <div class="h-20 flex items-center justify-center border-b border-blue-800">
-                    <i class="fas fa-tshirt text-3xl md:mr-3"></i>
-                    <h1 class="font-bold text-xl hidden md:block">Rizqiyya ERP</h1>
+                <div class="h-20 flex items-center justify-center border-b border-slate-800">
+                    <i class="fas fa-tshirt text-3xl md:mr-3 text-blue-400"></i>
+                    <h1 class="font-bold text-xl hidden md:block tracking-wide">Rizqiyya</h1>
                 </div>
-                <ul class="py-4 space-y-2">
-                    <li onclick="switchTab('dashboard')" data-role="owner" class="nav-item px-6 py-3 hover:bg-blue-800 cursor-pointer flex items-center transition"><i class="fas fa-home w-6"></i> <span class="hidden md:block ml-2">Dashboard</span></li>
-                    <li onclick="switchTab('pos')" data-role="kasir" class="nav-item px-6 py-3 hover:bg-blue-800 cursor-pointer flex items-center transition"><i class="fas fa-cash-register w-6"></i> <span class="hidden md:block ml-2">Kasir (POS)</span></li>
-                    <li onclick="switchTab('mesin')" data-role="kasir" class="nav-item px-6 py-3 hover:bg-blue-800 cursor-pointer flex items-center transition"><i class="fas fa-washing-machine w-6"></i> <span class="hidden md:block ml-2">Mesin & Antrean</span></li>
-                    <li onclick="switchTab('kurir')" data-role="kurir" class="nav-item px-6 py-3 hover:bg-blue-800 cursor-pointer flex items-center transition"><i class="fas fa-motorcycle w-6"></i> <span class="hidden md:block ml-2">Tugas Kurir</span></li>
-                    <li onclick="switchTab('crm')" data-role="owner" class="nav-item px-6 py-3 hover:bg-blue-800 cursor-pointer flex items-center transition"><i class="fas fa-users w-6"></i> <span class="hidden md:block ml-2">CRM & Piutang</span></li>
-                    <li onclick="switchTab('stok')" data-role="owner" class="nav-item px-6 py-3 hover:bg-blue-800 cursor-pointer flex items-center transition"><i class="fas fa-boxes w-6"></i> <span class="hidden md:block ml-2">Stok Bahan</span></li>
+                <ul class="py-4 space-y-1">
+                    <li onclick="switchTab('dashboard')" data-role="owner" class="nav-item px-6 py-4 hover:bg-slate-800 cursor-pointer flex items-center transition border-l-4 border-transparent hover:border-blue-500"><i class="fas fa-chart-pie w-6 text-gray-400"></i> <span class="hidden md:block ml-2">Dashboard</span></li>
+                    <li onclick="switchTab('pos')" data-role="kasir" class="nav-item px-6 py-4 hover:bg-slate-800 cursor-pointer flex items-center transition border-l-4 border-transparent hover:border-blue-500"><i class="fas fa-desktop w-6 text-gray-400"></i> <span class="hidden md:block ml-2">Kasir (POS)</span></li>
+                    <li onclick="switchTab('mesin')" data-role="kasir" class="nav-item px-6 py-4 hover:bg-slate-800 cursor-pointer flex items-center transition border-l-4 border-transparent hover:border-blue-500"><i class="fas fa-washing-machine w-6 text-gray-400"></i> <span class="hidden md:block ml-2">Mesin Cuci</span></li>
+                    <li onclick="switchTab('kurir')" data-role="kurir" class="nav-item px-6 py-4 hover:bg-slate-800 cursor-pointer flex items-center transition border-l-4 border-transparent hover:border-blue-500 relative">
+                        <i class="fas fa-motorcycle w-6 text-gray-400"></i> <span class="hidden md:block ml-2">Tugas Kurir</span>
+                        <span id="kurirBadge" class="absolute right-4 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">Baru</span>
+                    </li>
+                    <li onclick="switchTab('stok')" data-role="owner" class="nav-item px-6 py-4 hover:bg-slate-800 cursor-pointer flex items-center transition border-l-4 border-transparent hover:border-blue-500"><i class="fas fa-boxes w-6 text-gray-400"></i> <span class="hidden md:block ml-2">Stok & Supplier</span></li>
                 </ul>
             </div>
-            <div class="border-t border-blue-800 p-4">
-                <div class="text-xs text-blue-300 mb-3 hidden md:block text-center">Login sebagai: <b id="displayLoginName">Owner</b></div>
-                <button onclick="logoutAdmin()" class="w-full flex items-center justify-center text-red-400 hover:text-red-300 transition">
-                    <i class="fas fa-sign-out-alt"></i> <span class="hidden md:block ml-2">Keluar Shift</span>
+            <div class="border-t border-slate-800 p-4">
+                <div class="text-xs text-slate-400 mb-3 hidden md:block text-center">Login sebagai: <b id="displayLoginName" class="text-white">Owner</b></div>
+                <button onclick="closeShift()" class="w-full flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white py-2 rounded-lg transition font-bold">
+                    <i class="fas fa-power-off"></i> <span class="hidden md:block ml-2">Tutup Shift</span>
                 </button>
             </div>
         </nav>
 
         <!-- Main Content Area -->
-        <main class="flex-1 overflow-y-auto hide-scroll relative">
+        <main class="flex-1 overflow-y-auto hide-scroll relative pb-20">
             
-            <!-- Topbar -->
             <header class="h-20 bg-white shadow-sm flex items-center justify-between px-8 sticky top-0 z-10">
-                <h2 id="pageTitle" class="text-xl font-bold text-gray-800">Dashboard</h2>
+                <h2 id="pageTitle" class="text-2xl font-bold text-gray-800">Dashboard</h2>
                 <div class="flex items-center gap-4">
-                    <div class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold flex items-center">
-                        <span class="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span> Sistem Aktif
-                    </div>
+                    <span id="liveClock" class="font-mono font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-lg">00:00:00</span>
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-800 font-bold shadow-sm" id="userInitial">O</div>
                 </div>
             </header>
 
-            <!-- TAB: DASHBOARD (Hanya Owner) -->
+            <!-- TAB: DASHBOARD -->
             <div id="tab-dashboard" class="p-8 space-y-6 tab-content hidden">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-blue-500">
-                        <p class="text-gray-500 text-sm mb-1">Omset Hari Ini</p>
-                        <h3 class="text-2xl font-bold text-gray-800">Rp 450.000</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-700 p-6 rounded-2xl shadow-lg text-white">
+                        <p class="text-blue-100 text-sm mb-1">Kas Masuk Hari Ini</p>
+                        <h3 class="text-3xl font-bold" id="dashOmset">Rp 0</h3>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-green-500">
-                        <p class="text-gray-500 text-sm mb-1">Cucian Selesai</p>
-                        <h3 class="text-2xl font-bold text-gray-800">12 Nota</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">Cucian Diproses</p>
+                            <h3 class="text-3xl font-bold text-gray-800" id="dashTotalCucian">0 Kg</h3>
+                        </div>
+                        <i class="fas fa-weight-hanging text-4xl text-blue-100"></i>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-yellow-500">
-                        <p class="text-gray-500 text-sm mb-1">Piutang (Belum Lunas)</p>
-                        <h3 class="text-2xl font-bold text-gray-800">Rp 125.000</h3>
+                    <!-- Leaderboard Komisi -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h4 class="font-bold text-gray-800 mb-3 text-sm border-b pb-2"><i class="fas fa-trophy text-yellow-500 mr-2"></i>Kinerja Pencuci (Hari Ini)</h4>
+                        <div id="leaderboardList" class="space-y-3"></div>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500">
-                        <p class="text-gray-500 text-sm mb-1">Sisa Deterjen</p>
-                        <h3 class="text-2xl font-bold text-gray-800">3.5 Liter</h3>
-                    </div>
-                </div>
-                <!-- Chart -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-80">
-                    <canvas id="revenueChart"></canvas>
                 </div>
             </div>
 
-            <!-- TAB: KASIR (POS) -->
+            <!-- TAB: POS (KASIR) -->
             <div id="tab-pos" class="p-8 tab-content hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
-                    <!-- Form Input -->
-                    <div class="lg:col-span-2 space-y-6">
+                    <!-- Form Transaksi Detail -->
+                    <div class="lg:col-span-2 space-y-4">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                            <h3 class="font-bold text-lg mb-4 text-blue-900 border-b pb-2">Buat Pesanan Baru</h3>
+                            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                                <h3 class="font-bold text-lg text-gray-800">Detail Pelanggan & Layanan</h3>
+                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold" id="posInvoiceLabel">#INV-AUTO</span>
+                            </div>
                             
-                            <!-- PERBAIKAN: Penambahan opsi Kasir dan Pencuci -->
-                            <div class="grid grid-cols-2 gap-4 mb-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <div class="grid grid-cols-2 gap-4 mb-4 bg-gray-50 p-4 rounded-xl">
                                 <div>
-                                    <label class="text-xs text-gray-500 block mb-1 font-bold">Kasir Bertugas</label>
-                                    <select id="posKasir" class="w-full border p-2 rounded-lg bg-white outline-none">
-                                        <option value="Owner">Owner</option>
-                                        <option value="Endang">Endang</option>
-                                        <option value="Khotif">Khotif</option>
-                                        <option value="Nizar">Nizar</option>
-                                    </select>
+                                    <label class="text-xs text-gray-500 block mb-1 font-bold">Nama Pelanggan</label>
+                                    <input type="text" id="posName" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-300" placeholder="Budi">
                                 </div>
                                 <div>
-                                    <label class="text-xs text-gray-500 block mb-1 font-bold">Pencuci / Pemegang Cucian</label>
-                                    <select id="posPencuci" class="w-full border p-2 rounded-lg bg-white outline-none">
-                                        <option value="">-- Pilih Staf Pencuci --</option>
-                                        <option value="Endang">Endang</option>
-                                        <option value="Khotif">Khotif</option>
-                                        <option value="Nizar">Nizar</option>
-                                        <option value="Lainnya">Staf Lainnya</option>
-                                    </select>
+                                    <label class="text-xs text-gray-500 block mb-1 font-bold">Nomor WhatsApp</label>
+                                    <input type="tel" id="posPhone" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-300" placeholder="62812...">
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <label class="text-xs text-gray-500 block mb-1">Nama Pelanggan & WA</label>
-                                    <input type="text" id="posName" class="w-full border p-2.5 rounded-lg bg-gray-50 outline-none focus:border-blue-500" placeholder="Budi / 0812...">
-                                </div>
-                                <div>
-                                    <label class="text-xs text-gray-500 block mb-1">Layanan</label>
-                                    <select id="posService" class="w-full border p-2.5 rounded-lg bg-gray-50 outline-none" onchange="calculateTotal()">
-                                        <option value="6000">Kiloan Reguler (Rp 6.000/Kg)</option>
-                                        <option value="8000">Kiloan Express (Rp 8.000/Kg)</option>
-                                        <option value="35000">Bedcover (Rp 35.000/Pcs)</option>
+                            <div class="grid grid-cols-12 gap-2 mb-2 items-end">
+                                <div class="col-span-5">
+                                    <label class="text-xs text-gray-500 block mb-1">Pilih Layanan</label>
+                                    <select id="posItemService" class="w-full border p-2.5 rounded-lg bg-white outline-none">
+                                        <option value="6000|Kiloan CKS">Kiloan Cuci Kering Setrika (Rp 6k/Kg)</option>
+                                        <option value="4000|Kiloan CKL">Kiloan Cuci Kering Lipat (Rp 4k/Kg)</option>
+                                        <option value="35000|Bedcover Besar">Bedcover Besar (Rp 35k/Pcs)</option>
                                     </select>
                                 </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <label class="text-xs text-gray-500 block mb-1">Berat (Kg) / Jumlah</label>
-                                    <div class="flex gap-2">
-                                        <input type="number" id="posWeight" value="1" class="w-full border p-2.5 rounded-lg bg-gray-50 outline-none text-center" oninput="calculateTotal()">
-                                        <button onclick="syncTimbangan()" class="bg-gray-800 text-white px-4 rounded-lg hover:bg-gray-700" title="Ambil Data Timbangan Digital"><i class="fas fa-weight"></i></button>
+                                <div class="col-span-4">
+                                    <label class="text-xs text-gray-500 block mb-1">Berat / Qty</label>
+                                    <div class="flex">
+                                        <input type="number" id="posItemQty" value="1" step="0.1" class="w-full border p-2.5 rounded-l-lg outline-none text-center">
+                                        <button onclick="simulateBluetoothScale()" class="bg-gray-800 text-white px-3 rounded-r-lg" title="Timbangan"><i class="fas fa-weight"></i></button>
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="text-xs text-gray-500 block mb-1">Lokasi Rak</label>
-                                    <input type="text" id="posRak" class="w-full border p-2.5 rounded-lg bg-gray-50 outline-none uppercase" placeholder="RAK-A1">
+                                <div class="col-span-3">
+                                    <button onclick="addToCart()" class="w-full bg-blue-600 text-white font-bold p-2.5 rounded-lg hover:bg-blue-700 transition">
+                                        <i class="fas fa-plus"></i> Tambah
+                                    </button>
                                 </div>
                             </div>
                             
-                            <div class="border-t pt-4 mt-4 flex items-center justify-between">
-                                <button onclick="aiKamera()" class="text-sm bg-purple-100 text-purple-700 px-4 py-2 rounded-lg font-semibold hover:bg-purple-200 transition">
-                                    <i class="fas fa-camera mr-1"></i> AI Cek Pakaian
-                                </button>
-                                <div class="text-right">
-                                    <p class="text-sm text-gray-500 mb-1">Total Tagihan</p>
-                                    <h2 class="text-3xl font-bold text-gray-800" id="posTotal">Rp 6.000</h2>
+                            <!-- Tampilan Keranjang -->
+                            <div class="mt-4 border border-gray-200 rounded-xl overflow-hidden">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="bg-gray-100 text-gray-600 text-xs">
+                                        <tr><th class="p-2 pl-4">Item Layanan</th><th class="p-2">Qty</th><th class="p-2 text-right pr-4">Subtotal</th><th class="p-2"></th></tr>
+                                    </thead>
+                                    <tbody id="cartTableBody"></tbody>
+                                </table>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t">
+                                <div>
+                                    <label class="text-xs text-gray-500 block mb-1">Staf Pencuci (Wajib)</label>
+                                    <select id="posPencuci" class="w-full border p-2.5 rounded-lg bg-gray-50 outline-none">
+                                        <option value="">-- Pilih Pencuci --</option>
+                                        <option value="Endang">Endang</option>
+                                        <option value="Khotif">Khotif</option>
+                                        <option value="Nizar">Nizar</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 block mb-1">Diskon (Rp)</label>
+                                    <input type="number" id="posDiscount" value="0" oninput="updateGrandTotal()" class="w-full border p-2.5 rounded-lg bg-gray-50 outline-none">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Payment & Checkout -->
-                    <div class="bg-gray-800 text-white p-6 rounded-2xl shadow-lg flex flex-col justify-between">
-                        <div>
-                            <h3 class="font-bold text-lg mb-6 border-b border-gray-700 pb-2">Metode Pembayaran</h3>
-                            <div class="grid grid-cols-2 gap-3 mb-6">
-                                <button onclick="setPayment('TUNAI')" class="border border-gray-600 rounded-xl p-3 hover:bg-blue-600 transition text-sm"><i class="fas fa-money-bill-wave mb-2 text-xl block"></i>TUNAI</button>
-                                <button onclick="setPayment('QRIS')" class="border border-blue-500 bg-blue-600 rounded-xl p-3 shadow-lg text-sm font-bold"><i class="fas fa-qrcode mb-2 text-xl block"></i>QRIS</button>
-                                <button onclick="setPayment('KASBON')" class="col-span-2 border border-gray-600 rounded-xl p-3 hover:bg-yellow-600 transition text-sm text-yellow-400"><i class="fas fa-book mb-2 text-xl block"></i>KASBON (BAYAR NANTI)</button>
+                    <!-- Pembayaran & Eksekusi -->
+                    <div class="bg-gray-900 text-white p-6 rounded-2xl shadow-lg flex flex-col h-full relative overflow-hidden">
+                        <div class="flex-1 z-10">
+                            <h3 class="font-bold text-gray-400 mb-1 text-sm">TOTAL PEMBAYARAN</h3>
+                            <h1 class="text-4xl font-bold text-green-400 mb-6" id="posGrandTotalDisplay">Rp 0</h1>
+                            
+                            <h3 class="font-bold text-sm mb-3 border-b border-gray-700 pb-2">Metode</h3>
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <button onclick="setMethod('TUNAI')" id="btnMetode_TUNAI" class="border border-gray-600 rounded-xl p-3 hover:bg-gray-700 transition font-bold text-sm"><i class="fas fa-money-bill-wave mb-1 block"></i>TUNAI</button>
+                                <button onclick="setMethod('QRIS')" id="btnMetode_QRIS" class="border border-gray-600 rounded-xl p-3 hover:bg-gray-700 transition font-bold text-sm"><i class="fas fa-qrcode mb-1 block"></i>QRIS</button>
+                            </div>
+                            
+                            <div id="cashInputArea" class="hidden animate-fade-in mt-4">
+                                <label class="text-xs text-gray-400 block mb-1">Uang Diterima (Rp)</label>
+                                <input type="number" id="posCashReceived" oninput="calculateChange()" class="w-full bg-gray-800 border border-gray-600 p-3 rounded-lg text-white font-bold outline-none text-lg">
+                                <p class="text-sm mt-2 text-gray-300 flex justify-between">Kembalian: <b id="posChangeDisplay" class="text-white">Rp 0</b></p>
                             </div>
                         </div>
-                        <button onclick="prosesPesanan()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg flex items-center justify-center">
-                            <i class="fas fa-print mr-2"></i> Cetak & Proses
+                        <button onclick="processCheckout()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg mt-6 text-lg transition z-10">
+                            <i class="fas fa-check-circle mr-1"></i> Selesai & Cetak
                         </button>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- TAB: TUGAS KURIR (BARU) -->
-            <div id="tab-kurir" class="p-8 tab-content hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-motorcycle text-blue-500 mr-2"></i>Daftar Penjemputan & Pengantaran (Kurir)</h3>
-                    
-                    <div class="grid grid-cols-1 gap-4">
-                        <!-- Request 1 -->
-                        <div class="border border-gray-200 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between bg-blue-50">
-                            <div class="mb-3 md:mb-0">
-                                <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded font-bold uppercase mb-2 inline-block">Jemput Pagi</span>
-                                <h4 class="font-bold text-gray-800 text-lg">Bapak Budi</h4>
-                                <p class="text-sm text-gray-600 mt-1"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i> Jl. Asem Baris Raya Gg. 2 No 15 (Dekat Indomaret)</p>
-                                <p class="text-xs text-gray-500 mt-1">Ditugaskan ke: <b>Khotif</b></p>
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <a href="https://maps.google.com/?q=Jalan+Asem+Baris+Raya" target="_blank" class="text-center bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-300 transition">
-                                    <i class="fas fa-map mr-1"></i> Buka Peta
-                                </a>
-                                <button onclick="kabariPelangganTiba('6281234567890', 'Bapak Budi', 'Khotif')" class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-green-600 transition">
-                                    <i class="fab fa-whatsapp mr-1"></i> Kabari Tiba di Lokasi
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Request 2 -->
-                        <div class="border border-gray-200 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between bg-white">
-                            <div class="mb-3 md:mb-0">
-                                <span class="bg-yellow-500 text-white text-xs px-2 py-1 rounded font-bold uppercase mb-2 inline-block">Antar Cucian Selesai</span>
-                                <h4 class="font-bold text-gray-800 text-lg">Ibu Siti</h4>
-                                <p class="text-sm text-gray-600 mt-1"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i> Perumahan Tebet Mas Indah Blok A</p>
-                                <p class="text-xs text-gray-500 mt-1">Ditugaskan ke: <b>Hafiz</b></p>
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <button onclick="kabariPelangganTiba('6289988776655', 'Ibu Siti', 'Hafiz')" class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-green-600 transition">
-                                    <i class="fab fa-whatsapp mr-1"></i> Kabari Tiba di Lokasi
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- TAB: MESIN & ANTREAN -->
             <div id="tab-mesin" class="p-8 tab-content hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Waitlist -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-list-ol mr-2 text-blue-500"></i>Antrean Cucian (Waitlist)</h3>
-                        <div class="space-y-3">
-                            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 flex justify-between items-center">
-                                <div>
-                                    <p class="font-bold text-sm">#INV-002 (Budi)</p>
-                                    <p class="text-xs text-gray-500">Kiloan - 3 Kg | Pencuci: <b>Endang</b></p>
-                                </div>
-                                <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-bold">Menunggu</span>
-                            </div>
-                        </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-[500px]">
+                        <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-list-ol mr-2 text-blue-500"></i>Antrean Cucian Masuk</h3>
+                        <div id="waitlistContainer" class="flex-1 overflow-y-auto space-y-3 pr-2 hide-scroll"></div>
                     </div>
                     
-                    <!-- Mesin Slotting -->
                     <div class="space-y-4">
+                        <h3 class="font-bold text-gray-800 mb-2">Kontrol Mesin</h3>
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                             <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-2xl text-gray-400" id="iconM1"><i class="fas fa-washing-machine"></i></div>
-                                <div>
-                                    <h4 class="font-bold text-gray-800">Mesin Cuci 1</h4>
-                                    <p class="text-xs text-green-500 font-bold" id="statusM1">TERSEDIA</p>
-                                </div>
+                                <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center text-3xl text-gray-400" id="iconM1"><i class="fas fa-washing-machine"></i></div>
+                                <div><h4 class="font-bold text-gray-800">Mesin Cuci 1 (Aqua)</h4><p class="text-xs text-green-500 font-bold tracking-wide" id="statusM1">TERSEDIA</p></div>
                             </div>
-                            <button onclick="mulaiMesin('M1')" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-200 transition">Mulai (45m)</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB: CRM & PIUTANG -->
-            <div id="tab-crm" class="p-8 tab-content hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Daftar Tagihan Pelanggan (Belum Lunas)</h3>
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-50 text-gray-500">
-                            <tr>
-                                <th class="p-3">Pelanggan</th>
-                                <th class="p-3">Total Tagihan</th>
-                                <th class="p-3">Tanggal</th>
-                                <th class="p-3">Aksi (WhatsApp)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border-b">
-                                <td class="p-3 font-medium">Bapak Andi (0812998877)</td>
-                                <td class="p-3 font-bold text-red-500">Rp 125.000</td>
-                                <td class="p-3 text-gray-500">23 Sep 2026</td>
-                                <td class="p-3">
-                                    <button onclick="tagihWA('62812998877', 'Bapak Andi', '125.000')" class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition"><i class="fab fa-whatsapp mr-1"></i> Tagih Instan</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <!-- TAB: TUGAS KURIR -->
+            <div id="tab-kurir" class="p-8 tab-content hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-h-[500px]">
+                    <div class="flex justify-between items-center border-b pb-3 mb-4">
+                        <h3 class="font-bold text-gray-800"><i class="fas fa-motorcycle text-blue-500 mr-2"></i>Radar Penjemputan / Pengantaran</h3>
+                        <button onclick="loadCourierTasks()" class="text-blue-500 hover:bg-blue-50 px-3 py-1 rounded text-sm"><i class="fas fa-sync-alt"></i> Segarkan</button>
+                    </div>
+                    <div id="courierTaskContainer" class="grid grid-cols-1 gap-4"></div>
                 </div>
             </div>
 
-            <!-- TAB: STOK BAHAN (SUPPLIER) -->
+            <!-- TAB: STOK BAHAN (NEW & UPDATED) -->
             <div id="tab-stok" class="p-8 tab-content hidden">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="flex justify-between items-center mb-4 border-b pb-2">
-                        <h3 class="font-bold text-gray-800">Manajemen Stok & Pemesanan Otomatis</h3>
-                        <button onclick="pesanSupplier()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-green-700 transition">
-                            <i class="fab fa-whatsapp mr-2"></i> PO Supplier (621212345232)
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b pb-4 gap-4">
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-lg">Manajemen Stok & Supplier</h3>
+                            <p class="text-sm text-gray-500">Pantau ketersediaan bahan baku toko Anda.</p>
+                        </div>
+                        <button onclick="pesanSupplier()" class="bg-green-600 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg hover:bg-green-700 transition flex items-center">
+                            <i class="fab fa-whatsapp text-lg mr-2"></i> Buat PO Supplier Baru
                         </button>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                        <div class="bg-red-50 border border-red-200 p-4 rounded-xl flex items-center justify-between">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-red-50 border border-red-200 p-5 rounded-2xl flex flex-col items-start justify-between h-32">
+                            <span class="text-xs text-red-600 bg-red-100 px-2 py-1 rounded font-bold">KRITIS</span>
                             <div>
-                                <p class="text-xs text-red-600 font-bold mb-1">KRITIS</p>
-                                <p class="font-bold text-gray-800">Deterjen Cair</p>
+                                <p class="text-gray-600 text-sm">Deterjen Cair (Liter)</p>
+                                <h2 class="text-3xl font-bold text-red-600">1.2 L</h2>
                             </div>
-                            <h2 class="text-2xl font-bold text-red-600">1.2 L</h2>
                         </div>
-                        <div class="bg-green-50 border border-green-200 p-4 rounded-xl flex items-center justify-between">
+                        <div class="bg-yellow-50 border border-yellow-200 p-5 rounded-2xl flex flex-col items-start justify-between h-32">
+                            <span class="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded font-bold">MENIPIS</span>
                             <div>
-                                <p class="text-xs text-green-600 font-bold mb-1">AMAN</p>
-                                <p class="font-bold text-gray-800">Parfum Laundry</p>
+                                <p class="text-gray-600 text-sm">Plastik Packing (Pack)</p>
+                                <h2 class="text-3xl font-bold text-yellow-600">5 Pack</h2>
                             </div>
-                            <h2 class="text-2xl font-bold text-green-600">8.5 L</h2>
+                        </div>
+                        <div class="bg-green-50 border border-green-200 p-5 rounded-2xl flex flex-col items-start justify-between h-32">
+                            <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded font-bold">AMAN</span>
+                            <div>
+                                <p class="text-gray-600 text-sm">Parfum Laundry (Botol)</p>
+                                <h2 class="text-3xl font-bold text-green-600">12 Btl</h2>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -352,26 +288,18 @@
             <h2 style="margin: 0; font-size: 16px;">RIZQIYYA LAUNDRY</h2>
             <p style="margin: 0; font-size: 10px;">Jl. Asem Baris Raya No. 22</p>
         </div>
-        <p style="margin: 2px 0;">INV: #INV-<span id="printInv"></span></p>
+        <p style="margin: 2px 0;">INV: <span id="printInv"></span></p>
+        <p style="margin: 2px 0;">TGL: <span id="printDate"></span></p>
         <p style="margin: 2px 0; border-bottom: 1px dashed black; padding-bottom: 5px;">PLG: <span id="printName"></span></p>
-        
-        <table style="width: 100%; margin-top: 5px;">
-            <tr><td id="printItemName">Kiloan Reguler</td></tr>
-            <tr>
-                <td><span id="printQty">1</span> x <span id="printPrice">6000</span></td>
-                <td style="text-align: right;"><span id="printTotal">6000</span></td>
-            </tr>
-        </table>
-        
-        <div style="border-top: 1px dashed black; margin-top: 5px; padding-top: 5px; text-align: right; font-weight: bold;">
-            TOTAL: Rp <span id="printFinalTotal">6.000</span>
+        <table style="width: 100%; margin-top: 5px; font-size: 11px;" id="printCartTable"></table>
+        <div style="border-top: 1px dashed black; margin-top: 5px; padding-top: 5px; text-align: right; font-weight: bold; font-size:12px;">
+            TOTAL: <span id="printFinalTotal"></span>
         </div>
         <p style="margin: 5px 0 0 0; font-size: 10px;">Kasir: <span id="printKasir"></span></p>
+        <div style="text-align: center; margin-top: 10px; font-size: 10px;">Terima Kasih!</div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // --- 1. RBAC (ROLE BASED ACCESS CONTROL) ---
         const userDatabase = {
             '2323': { name: 'Owner', roles: ['owner', 'kasir', 'kurir'] },
             '2000': { name: 'Endang', roles: ['kasir'] },
@@ -379,41 +307,40 @@
             '2002': { name: 'Nizar', roles: ['kasir', 'kurir'] },
             '2006': { name: 'Hafiz', roles: ['kurir'] }
         };
+        let currentUser = null, cart = [], selectedMethod = '', totalDiscount = 0, shiftCashTotal = 0;
+
+        function initSystem() {
+            setInterval(() => { document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('id-ID'); }, 1000);
+            window.addEventListener('storage', (e) => {
+                if(e.key === 'rizqiyya_pickup_requests') {
+                    document.getElementById('kurirBadge').classList.remove('hidden');
+                    if(!document.getElementById('tab-kurir').classList.contains('hidden')) loadCourierTasks();
+                }
+            });
+        }
 
         function loginAdmin() {
             const pin = document.getElementById('adminPin').value;
-            const user = userDatabase[pin];
-
-            if(user) {
+            currentUser = userDatabase[pin];
+            if(currentUser) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
-                document.getElementById('displayLoginName').innerText = user.name;
+                document.getElementById('displayLoginName').innerText = currentUser.name;
+                document.getElementById('userInitial').innerText = currentUser.name.charAt(0);
                 
-                // Set default kasir dropdown to the person logged in
-                const kasirDropdown = document.getElementById('posKasir');
-                if(kasirDropdown) kasirDropdown.value = user.name;
-
-                // Tampilkan menu berdasarkan hak akses
                 document.querySelectorAll('.nav-item').forEach(el => {
                     const reqRole = el.getAttribute('data-role');
-                    if(user.roles.includes('owner') || user.roles.includes(reqRole)) {
-                        el.style.display = 'flex';
-                    } else {
-                        el.style.display = 'none';
-                    }
+                    el.style.display = (currentUser.roles.includes('owner') || currentUser.roles.includes(reqRole)) ? 'flex' : 'none';
                 });
 
-                // Arahkan ke tab yang sesuai dengan perannya
-                if(user.roles.includes('owner')) {
-                    switchTab('dashboard');
-                    initChart();
-                } else if(user.roles.includes('kasir')) {
-                    switchTab('pos');
-                } else if(user.roles.includes('kurir')) {
-                    switchTab('kurir');
-                }
+                if(currentUser.roles.includes('owner')) switchTab('dashboard');
+                else if(currentUser.roles.includes('kasir')) switchTab('pos');
+                else switchTab('kurir');
+                
+                shiftCashTotal = parseInt(localStorage.getItem(`shift_cash_${currentUser.name}`)) || 0;
             } else {
-                Swal.fire({icon: 'error', title: 'Akses Ditolak', text: 'PIN Salah atau tidak terdaftar!'});
+                Swal.fire({icon: 'error', title: 'Ditolak', text: 'PIN Salah!'});
+                document.getElementById('adminPin').value = '';
             }
         }
 
@@ -421,96 +348,212 @@
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
             document.getElementById('tab-' + tabId).classList.remove('hidden');
             
-            const titles = { 'dashboard': 'Dashboard', 'pos': 'Kasir (POS)', 'mesin': 'Mesin & Antrean', 'kurir': 'Tugas Kurir', 'crm': 'CRM & Piutang', 'stok': 'Stok Bahan' };
+            const titles = { 'dashboard': 'Dashboard Laporan', 'pos': 'Kasir Utama', 'mesin': 'Pusat Mesin & Antrean', 'kurir': 'Sistem Navigasi Kurir', 'stok': 'Manajemen Stok Bahan' };
             document.getElementById('pageTitle').innerText = titles[tabId];
+
+            if(tabId === 'dashboard' && currentUser.roles.includes('owner')) loadDashboard();
+            if(tabId === 'mesin') loadWaitlist();
+            if(tabId === 'kurir') { document.getElementById('kurirBadge').classList.add('hidden'); loadCourierTasks(); }
         }
 
-        function logoutAdmin() {
-            window.location.reload();
-        }
-
-        // --- 2. POS SYSTEM ---
-        let currentPrice = 6000;
-        
-        function calculateTotal() {
-            currentPrice = parseInt(document.getElementById('posService').value);
-            const currentWeight = parseFloat(document.getElementById('posWeight').value) || 0;
-            const total = currentPrice * currentWeight;
-            document.getElementById('posTotal').innerText = 'Rp ' + total.toLocaleString('id-ID');
-        }
-
-        function syncTimbangan() {
-            document.getElementById('posWeight').value = "3.5"; 
-            calculateTotal();
-        }
-
-        function aiKamera() {
-            Swal.fire({icon: 'info', title: 'Deteksi AI', text: 'Pakaian terdeteksi.'});
-        }
-
-        function setPayment(method) {
-            Swal.fire({icon: 'success', title: 'Pembayaran', text: method, timer: 1000, showConfirmButton: false});
-        }
-
-        function prosesPesanan() {
-            const kasirName = document.getElementById('posKasir').value;
-            const pencuciName = document.getElementById('posPencuci').value;
-            
-            if(!pencuciName) {
-                Swal.fire('Perhatian', 'Mohon pilih staf pencuci terlebih dahulu!', 'warning');
-                return;
+        async function closeShift() {
+            if(!currentUser.roles.includes('kasir') && !currentUser.roles.includes('owner')) { window.location.reload(); return; }
+            const { value: actualCash } = await Swal.fire({
+                title: 'Tutup Shift Kasir',
+                html: `<p class="mb-3 text-sm text-gray-500">Sistem mencatat pemasukan TUNAI sebesar <b>Rp ${shiftCashTotal.toLocaleString('id-ID')}</b>.</p>
+                       <p class="text-sm font-bold text-blue-600 mb-2">Hitung uang di laci sekarang:</p>`,
+                input: 'number',
+                showCancelButton: true, confirmButtonColor: '#2563eb', confirmButtonText: 'Selesai & Keluar'
+            });
+            if (actualCash) {
+                const diff = parseInt(actualCash) - shiftCashTotal;
+                let msg = diff === 0 ? '<span class="text-green-500 font-bold">BALANCE</span>' : diff > 0 ? `<span class="text-blue-500 font-bold">LEBIH Rp ${diff.toLocaleString('id-ID')}</span>` : `<span class="text-red-500 font-bold">MINUS Rp ${Math.abs(diff).toLocaleString('id-ID')}</span>`;
+                await Swal.fire({ title: 'Laporan', html: `Uang Sistem: Rp ${shiftCashTotal.toLocaleString('id-ID')}<br>Uang Fisik: Rp ${parseInt(actualCash).toLocaleString('id-ID')}<br><br>Status: ${msg}`, confirmButtonText: 'Keluar Aplikasi' });
+                localStorage.setItem(`shift_cash_${currentUser.name}`, '0'); window.location.reload();
             }
+        }
 
-            const inv = Math.floor(1000 + Math.random() * 9000);
+        function simulateBluetoothScale() { document.getElementById('posItemQty').value = (Math.random() * 3 + 2).toFixed(1); }
+        
+        function addToCart() {
+            const raw = document.getElementById('posItemService').value;
+            const price = parseInt(raw.split('|')[0]), name = raw.split('|')[1], qty = parseFloat(document.getElementById('posItemQty').value);
+            if(qty > 0) { cart.push({ name, price, qty, sub: price * qty }); renderCart(); }
+        }
+
+        function removeCart(index) { cart.splice(index, 1); renderCart(); }
+
+        function renderCart() {
+            let html = '';
+            cart.forEach((item, i) => {
+                html += `<tr class="border-b"><td class="p-2 pl-4">${item.name}</td><td class="p-2">${item.qty}</td><td class="p-2 text-right">Rp ${item.sub.toLocaleString()}</td><td class="p-2 text-right"><button onclick="removeCart(${i})" class="text-red-500"><i class="fas fa-times"></i></button></td></tr>`;
+            });
+            document.getElementById('cartTableBody').innerHTML = html; updateGrandTotal();
+        }
+
+        function updateGrandTotal() {
+            totalDiscount = parseInt(document.getElementById('posDiscount').value) || 0;
+            const grand = Math.max(0, cart.reduce((s, i) => s + i.sub, 0) - totalDiscount);
+            document.getElementById('posGrandTotalDisplay').innerText = `Rp ${grand.toLocaleString('id-ID')}`;
+            calculateChange();
+        }
+
+        function setMethod(method) {
+            selectedMethod = method;
+            ['TUNAI', 'QRIS'].forEach(m => document.getElementById('btnMetode_'+m).classList.remove('bg-blue-600', 'text-white'));
+            document.getElementById('btnMetode_'+method).classList.add('bg-blue-600', 'text-white');
+            document.getElementById('cashInputArea').style.display = (method === 'TUNAI') ? 'block' : 'none';
+        }
+
+        function calculateChange() {
+            if(selectedMethod !== 'TUNAI') return;
+            const grand = Math.max(0, cart.reduce((s, i) => s + i.sub, 0) - totalDiscount);
+            const received = parseInt(document.getElementById('posCashReceived').value) || 0;
+            document.getElementById('posChangeDisplay').innerText = `Rp ${Math.max(0, received - grand).toLocaleString('id-ID')}`;
+        }
+
+        function processCheckout() {
+            if(!cart.length) return Swal.fire('Kosong', 'Keranjang belum diisi!', 'warning');
+            if(!selectedMethod) return Swal.fire('Pilih', 'Pilih metode pembayaran!', 'warning');
+            const pencuci = document.getElementById('posPencuci').value;
+            if(!pencuci) return Swal.fire('Wajib', 'Pilih staf pencuci!', 'warning');
+
+            const inv = 'INV-' + Math.floor(1000 + Math.random() * 9000);
+            const grand = cart.reduce((s, i) => s + i.sub, 0) - totalDiscount;
+
+            if(selectedMethod === 'TUNAI') { shiftCashTotal += grand; localStorage.setItem(`shift_cash_${currentUser.name}`, shiftCashTotal); }
+
+            let orders = JSON.parse(localStorage.getItem('rizqiyya_db_orders')) || [];
+            orders.push({ id: inv, customer: document.getElementById('posName').value || 'Walk-in', items: cart, total: grand, washer: pencuci, weight: cart.reduce((s, i) => i.name.includes('Kiloan') ? s + i.qty : s, 0), status: 'menunggu_mesin' });
+            localStorage.setItem('rizqiyya_db_orders', JSON.stringify(orders));
+
             document.getElementById('printInv').innerText = inv;
+            document.getElementById('printDate').innerText = new Date().toLocaleDateString('id-ID');
             document.getElementById('printName').innerText = document.getElementById('posName').value || 'Walk-in';
-            document.getElementById('printKasir').innerText = kasirName;
-            
-            Swal.fire({
-                icon: 'success',
-                title: 'Transaksi Berhasil',
-                text: `Pesanan diproses oleh Kasir: ${kasirName}. Pencuci: ${pencuciName}`,
-                confirmButtonText: 'Cetak Struk (Thermal)'
-            }).then(() => {
-                const printContents = document.getElementById('thermalReceipt').outerHTML;
-                document.body.innerHTML = printContents;
+            let printCart = ''; cart.forEach(i => { printCart += `<tr><td colspan="2">${i.name}</td></tr><tr><td>${i.qty} x ${i.price}</td><td style="text-align:right">${i.sub}</td></tr>`; });
+            document.getElementById('printCartTable').innerHTML = printCart;
+            document.getElementById('printFinalTotal').innerText = `Rp ${grand.toLocaleString('id-ID')}`;
+            document.getElementById('printKasir').innerText = currentUser.name;
+
+            Swal.fire({ icon: 'success', title: 'Transaksi Sukses', html: `Nota: <b>${inv}</b>`, confirmButtonText: 'Cetak Struk' }).then(() => {
+                document.body.innerHTML = document.getElementById('thermalReceipt').outerHTML;
                 document.getElementById('thermalReceipt').classList.remove('hidden');
-                window.print();
-                window.location.reload(); 
+                window.print(); window.location.reload();
             });
         }
 
-        // --- 3. FITUR WHATSAPP KURIR (BARU) ---
-        function kabariPelangganTiba(phone, customerName, courierName) {
-            // Membuka WhatsApp secara instan untuk mengabari pelanggan bahwa kurir sudah sampai
-            const pesan = `Halo ${customerName},%0A%0AKurir kami (${courierName}) *sudah sampai* di titik lokasi alamat Anda.%0A%0AMohon konfirmasinya untuk serah terima cucian ya. Terima kasih!`;
-            window.location.href = `https://wa.me/${phone}?text=${pesan}`;
+        function loadWaitlist() {
+            let orders = JSON.parse(localStorage.getItem('rizqiyya_db_orders')) || [];
+            let waiting = orders.filter(o => o.status === 'menunggu_mesin');
+            const container = document.getElementById('waitlistContainer');
+            if(!waiting.length) return container.innerHTML = `<div class="text-center text-gray-400 mt-10 text-sm">Tidak ada antrean saat ini.</div>`;
+            
+            let html = '';
+            waiting.forEach(o => {
+                html += `
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 shadow-sm">
+                    <div class="flex justify-between items-start mb-2"><div><span class="text-xs font-bold text-blue-500">#${o.id}</span><h4 class="font-bold">${o.customer}</h4></div><span class="bg-yellow-200 text-yellow-800 text-[10px] px-2 py-1 rounded font-bold uppercase">Antre</span></div>
+                    <p class="text-xs text-gray-500 mb-2">${o.items.map(i => i.name).join(', ')}</p>
+                    <div class="flex justify-between items-center border-t border-blue-200 pt-2"><span class="text-[10px] text-gray-500">Pencuci: <b>${o.washer}</b></span></div>
+                </div>`;
+            });
+            container.innerHTML = html;
         }
 
-        // --- 4. LAIN-LAIN ---
-        function mulaiMesin(id) {
-            document.getElementById('status' + id).innerText = 'BERJALAN';
-            document.getElementById('status' + id).classList.replace('text-green-500', 'text-red-500');
+        function loadCourierTasks() {
+            let requests = JSON.parse(localStorage.getItem('rizqiyya_pickup_requests')) || [];
+            if(currentUser.roles.includes('kurir') && !currentUser.roles.includes('owner')) { requests = requests.filter(r => r.courier === currentUser.name && r.status !== 'selesai'); } else { requests = requests.filter(r => r.status !== 'selesai'); }
+
+            const container = document.getElementById('courierTaskContainer');
+            if(!requests.length) return container.innerHTML = `<div class="text-center text-gray-400 mt-10">Tidak ada tugas penjemputan/pengantaran.</div>`;
+
+            let html = '';
+            requests.forEach(r => {
+                const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.address)}`;
+                const waLink = `https://wa.me/${r.phone}?text=Halo ${r.name}, saya ${r.courier} kurir Rizqiyya Laundry. Saya sudah OTW menuju lokasi Anda.`;
+                html += `
+                <div class="border border-gray-200 rounded-xl p-5 flex flex-col md:flex-row justify-between bg-blue-50">
+                    <div class="mb-4 md:mb-0"><span class="bg-blue-600 text-white text-[10px] px-2 py-1 rounded font-bold">JEMPUT</span><h4 class="font-bold text-lg mt-2">${r.name}</h4><p class="text-sm text-gray-600"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i>${r.address}</p><p class="text-xs text-gray-400 mt-1">Kurir: <b>${r.courier}</b></p></div>
+                    <div class="flex flex-col gap-2 min-w-[150px]">
+                        <button onclick="window.open('${mapLink}', '_blank')" class="bg-gray-200 text-gray-700 px-3 py-2 rounded text-sm font-bold shadow-sm"><i class="fas fa-location-arrow"></i> Maps</button>
+                        <button onclick="window.location.href='${waLink}'" class="bg-green-500 text-white px-3 py-2 rounded text-sm font-bold shadow-sm"><i class="fab fa-whatsapp"></i> Kabari OTW</button>
+                        <button onclick="completeTask('${r.id}')" class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-bold shadow-sm"><i class="fas fa-check"></i> Selesai</button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
         }
 
-        function tagihWA(phone, name, amount) {
-            const pesan = `Halo ${name},%0A%0AIni adalah pengingat dari sistem Rizqiyya Laundry.%0ATagihan Anda sebesar *Rp ${amount}* belum dilunasi.`;
-            window.location.href = `https://wa.me/${phone}?text=${pesan}`;
+        function completeTask(id) {
+            let requests = JSON.parse(localStorage.getItem('rizqiyya_pickup_requests')) || [];
+            const idx = requests.findIndex(r => r.id === id);
+            if(idx > -1) { requests[idx].status = 'selesai'; localStorage.setItem('rizqiyya_pickup_requests', JSON.stringify(requests)); loadCourierTasks(); }
         }
 
-        function pesanSupplier() {
-            const pesan = `Halo Supplier,%0A%0ASaya admin Rizqiyya Laundry. Ingin request Purchase Order (PO).`;
-            window.location.href = `https://wa.me/621212345232?text=${pesan}`;
+        function loadDashboard() {
+            let orders = JSON.parse(localStorage.getItem('rizqiyya_db_orders')) || [];
+            let omset = 0, totalKg = 0, washers = { 'Endang': 0, 'Khotif': 0, 'Nizar': 0 };
+            orders.forEach(o => { omset += o.total; totalKg += o.weight; if(washers[o.washer] !== undefined) washers[o.washer] += o.weight; });
+
+            document.getElementById('dashOmset').innerText = `Rp ${omset.toLocaleString('id-ID')}`;
+            document.getElementById('dashTotalCucian').innerText = `${totalKg.toFixed(1)} Kg`;
+
+            let sortedWashers = Object.keys(washers).map(k => ({name: k, kg: washers[k]})).sort((a,b) => b.kg - a.kg);
+            let html = '';
+            sortedWashers.forEach((w, i) => {
+                let medal = i===0 ? 'text-yellow-500' : i===1 ? 'text-gray-400' : 'text-orange-700';
+                html += `<div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-100"><span class="font-bold text-gray-700"><i class="fas fa-medal ${medal} w-6"></i> ${w.name}</span><span class="font-mono bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-sm">${w.kg.toFixed(1)} Kg</span></div>`;
+            });
+            document.getElementById('leaderboardList').innerHTML = html;
         }
 
-        function initChart() {
-            const ctx = document.getElementById('revenueChart');
-            if(ctx) {
-                new Chart(ctx.getContext('2d'), {
-                    type: 'bar',
-                    data: { labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'], datasets: [{ data: [350, 420, 200, 450, 500], backgroundColor: '#3b82f6' }] },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
+        // --- FITUR TERBARU: PO SUPPLIER DENGAN FORM INPUT ---
+        async function pesanSupplier() {
+            const { value: formValues } = await Swal.fire({
+                title: 'Request Order Supplier',
+                html:
+                    '<div class="text-left mt-2">' +
+                    '<label class="text-xs text-gray-500 font-bold">Deterjen Cair (Liter)</label>' +
+                    '<input id="po-det" type="number" class="w-full border p-2 rounded-lg mb-3 outline-none focus:border-blue-500" placeholder="Contoh: 10">' +
+                    '<label class="text-xs text-gray-500 font-bold">Parfum Laundry (Botol)</label>' +
+                    '<input id="po-parf" type="number" class="w-full border p-2 rounded-lg mb-3 outline-none focus:border-blue-500" placeholder="Contoh: 5">' +
+                    '<label class="text-xs text-gray-500 font-bold">Plastik Packing (Pack)</label>' +
+                    '<input id="po-plas" type="number" class="w-full border p-2 rounded-lg outline-none focus:border-blue-500" placeholder="Contoh: 3">' +
+                    '</div>',
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fab fa-whatsapp"></i> Kirim ke WA Supplier',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#16a34a',
+                preConfirm: () => {
+                    return [
+                        document.getElementById('po-det').value,
+                        document.getElementById('po-parf').value,
+                        document.getElementById('po-plas').value
+                    ]
+                }
+            });
+
+            if (formValues) {
+                const deterjen = formValues[0] || 0;
+                const parfum = formValues[1] || 0;
+                const plastik = formValues[2] || 0;
+
+                if (deterjen == 0 && parfum == 0 && plastik == 0) {
+                    Swal.fire('Pesanan Kosong', 'Harap isi minimal satu barang yang ingin dipesan.', 'warning');
+                    return;
+                }
+
+                // Menyusun pesan untuk nomor 6281212345232
+                let pesan = `Halo Supplier,%0A%0ASaya admin Rizqiyya Laundry. Ingin request stok bahan baku tambahan:%0A`;
+                if(deterjen > 0) pesan += `%0A- Deterjen Cair: *${deterjen} Liter*`;
+                if(parfum > 0) pesan += `%0A- Parfum Laundry: *${parfum} Botol*`;
+                if(plastik > 0) pesan += `%0A- Plastik Packing: *${plastik} Pack*`;
+                
+                pesan += `%0A%0AMohon info total harga dan kapan bisa dikirim. Terima kasih!`;
+
+                // Redirect Instan ke WA
+                window.location.href = `https://wa.me/6281212345232?text=${pesan}`;
             }
         }
     </script>
