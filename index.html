@@ -21,6 +21,7 @@
         .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.5); }
         .premium-shadow { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); }
         
+        /* CSS Khusus Printer Thermal */
         @media print {
             body * { visibility: hidden; }
             #thermalReceipt, #thermalReceipt * { visibility: visible; font-family: monospace; }
@@ -151,7 +152,7 @@
                         <!-- Form Input (Left Side) -->
                         <div class="lg:col-span-8 space-y-6">
                             
-                            <!-- FITUR BARU: DRAFT KASIR OTOMATIS -->
+                            <!-- AUTO-DRAFT (Tugas Kurir Selesai) -->
                             <div id="posDraftContainer" class="hidden glass-panel bg-emerald-50/70 border border-emerald-200 p-5 rounded-[1.5rem] premium-shadow mb-6">
                                 <div class="flex items-center mb-3">
                                     <span class="relative flex h-3 w-3 mr-2">
@@ -483,24 +484,43 @@
             if(tabId === 'kurir') { document.getElementById('kurirBadge').classList.add('hidden'); loadCourierTasks(); }
         }
 
+        /* --- PERBAIKAN TUTUP SHIFT & LAPORAN KE WA --- */
         async function closeShift() {
             if(!currentUser.roles.includes('kasir') && !currentUser.roles.includes('owner')) { window.location.reload(); return; }
+            
             const { value: actualCash } = await Swal.fire({
                 title: 'Tutup Shift Kasir',
                 html: `<p class="mb-3 text-sm text-slate-500">Sistem mencatat pemasukan TUNAI sebesar <b>Rp ${shiftCashTotal.toLocaleString('id-ID')}</b>.</p>
-                       <p class="text-sm font-bold text-indigo-600 mb-2">Hitung uang di laci sekarang:</p>`,
+                       <p class="text-sm font-bold text-indigo-600 mb-2">Hitung uang fisik di laci sekarang:</p>`,
                 input: 'number',
-                showCancelButton: true, confirmButtonColor: '#4f46e5', confirmButtonText: 'Selesai & Keluar'
+                inputPlaceholder: 'Contoh: 150000',
+                showCancelButton: true, confirmButtonColor: '#4f46e5', confirmButtonText: '<i class="fab fa-whatsapp"></i> Kirim Laporan & Keluar'
             });
+            
             if (actualCash) {
                 const diff = parseInt(actualCash) - shiftCashTotal;
-                let msg = diff === 0 ? '<span class="text-emerald-500 font-bold">BALANCE</span>' : diff > 0 ? `<span class="text-blue-500 font-bold">LEBIH Rp ${diff.toLocaleString('id-ID')}</span>` : `<span class="text-rose-500 font-bold">MINUS Rp ${Math.abs(diff).toLocaleString('id-ID')}</span>`;
-                await Swal.fire({ title: 'Laporan', html: `Uang Sistem: Rp ${shiftCashTotal.toLocaleString('id-ID')}<br>Uang Fisik: Rp ${parseInt(actualCash).toLocaleString('id-ID')}<br><br>Status: ${msg}`, confirmButtonColor: '#4f46e5' });
-                localStorage.setItem(`shift_cash_${currentUser.name}`, '0'); window.location.reload();
+                let msgStatus = diff === 0 ? '✅ BALANCE (Sesuai)' : diff > 0 ? `🔼 LEBIH Rp ${diff.toLocaleString('id-ID')}` : `🔻 MINUS Rp ${Math.abs(diff).toLocaleString('id-ID')}`;
+                
+                // Susun Pesan WA
+                const waNumber = "6281212345232";
+                let reportMsg = `*LAPORAN TUTUP SHIFT (Rizqiyya Laundry)* 🧾%0A%0A`;
+                reportMsg += `👤 Kasir: *${currentUser.name}*%0A`;
+                reportMsg += `📅 Waktu: *${new Date().toLocaleString('id-ID')}*%0A%0A`;
+                reportMsg += `💰 Uang di Sistem: *Rp ${shiftCashTotal.toLocaleString('id-ID')}*%0A`;
+                reportMsg += `💵 Uang Fisik Laci: *Rp ${parseInt(actualCash).toLocaleString('id-ID')}*%0A`;
+                reportMsg += `📊 Status Kas: *${msgStatus}*%0A%0A`;
+                reportMsg += `_Shift telah ditutup secara otomatis._`;
+
+                // Buka Laporan WA di tab baru
+                window.open(`https://wa.me/${waNumber}?text=${reportMsg}`, '_blank');
+                
+                // Reset uang shift dan Logout dari sistem
+                localStorage.setItem(`shift_cash_${currentUser.name}`, '0'); 
+                window.location.reload(); 
             }
         }
 
-        /* --- POS LOGIC & AUTO-DRAFT --- */
+        /* --- KASIR & AUTO-DRAFT --- */
         function loadPOSDrafts() {
             let drafts = JSON.parse(localStorage.getItem('rizqiyya_pos_drafts')) || [];
             const container = document.getElementById('posDraftContainer');
@@ -584,6 +604,7 @@
             document.getElementById('posChangeDisplay').innerText = `Rp ${Math.max(0, received - grand).toLocaleString('id-ID')}`;
         }
 
+        /* --- PERBAIKAN PENCETAKAN STRUK (SOFT RESET) --- */
         function processCheckout() {
             if(!cart.length) return Swal.fire('Kosong', 'Keranjang belum diisi!', 'warning');
             if(!selectedMethod) return Swal.fire('Metode', 'Pilih metode pembayaran!', 'warning');
@@ -596,12 +617,11 @@
             if(selectedMethod === 'TUNAI') { shiftCashTotal += grand; localStorage.setItem(`shift_cash_${currentUser.name}`, shiftCashTotal); }
 
             let orders = JSON.parse(localStorage.getItem('rizqiyya_db_orders')) || [];
-            // Hitung Kg khusus untuk Leaderboard pencuci (Hanya layanan per-Kg)
             let weightForLeaderboard = cart.reduce((s, i) => i.name.includes('Setrika') || i.name.includes('Kering') ? s + i.qty : s, 0);
-            
             orders.push({ id: inv, customer: document.getElementById('posName').value || 'Walk-in', items: cart, total: grand, washer: pencuci, weight: weightForLeaderboard, status: 'menunggu_mesin' });
             localStorage.setItem('rizqiyya_db_orders', JSON.stringify(orders));
 
+            // Siapkan Kertas Struk
             document.getElementById('printInv').innerText = inv;
             document.getElementById('printDate').innerText = new Date().toLocaleDateString('id-ID');
             document.getElementById('printName').innerText = document.getElementById('posName').value || 'Walk-in';
@@ -611,10 +631,40 @@
             document.getElementById('printFinalTotal').innerText = `Rp ${grand.toLocaleString('id-ID')}`;
             document.getElementById('printKasir').innerText = currentUser.name;
 
-            Swal.fire({ icon: 'success', title: 'Transaksi Sukses', html: `Nota: <b>${inv}</b>`, confirmButtonColor: '#4f46e5', confirmButtonText: 'Cetak Struk' }).then(() => {
-                document.body.innerHTML = document.getElementById('thermalReceipt').outerHTML;
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'Transaksi Sukses', 
+                html: `Nota: <b>${inv}</b>`, 
+                confirmButtonColor: '#4f46e5', 
+                confirmButtonText: 'Cetak Struk' 
+            }).then(() => {
+                // Proses Print Browser
                 document.getElementById('thermalReceipt').classList.remove('hidden');
-                window.print(); window.location.reload();
+                window.print();
+                document.getElementById('thermalReceipt').classList.add('hidden');
+                
+                // SOFT RESET: Bersihkan form kasir tanpa Reload halaman
+                cart = [];
+                renderCart();
+                document.getElementById('posName').value = '';
+                document.getElementById('posPhone').value = '';
+                document.getElementById('posItemQty').value = '1';
+                document.getElementById('posDiscount').value = '0';
+                document.getElementById('posCashReceived').value = '';
+                document.getElementById('posChangeDisplay').innerText = 'Rp 0';
+                document.getElementById('posPencuci').value = '';
+                
+                ['TUNAI', 'QRIS'].forEach(m => {
+                    const btn = document.getElementById('btnMetode_'+m);
+                    btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-500');
+                    btn.classList.add('border-slate-700', 'text-slate-300');
+                });
+                selectedMethod = '';
+                document.getElementById('cashInputArea').style.display = 'none';
+
+                // Segarkan List di tab lainnya secara diam-diam
+                loadWaitlist();
+                if(currentUser.roles.includes('owner')) loadDashboard();
             });
         }
 
@@ -661,7 +711,6 @@
             container.innerHTML = html;
         }
 
-        // AUTO-DRAFT TRIGGER: Saat Kurir Klik Selesai
         function completeTask(id) {
             let requests = JSON.parse(localStorage.getItem('rizqiyya_pickup_requests')) || [];
             const idx = requests.findIndex(r => r.id === id);
@@ -669,7 +718,6 @@
                 requests[idx].status = 'selesai'; 
                 localStorage.setItem('rizqiyya_pickup_requests', JSON.stringify(requests)); 
                 
-                // Masukkan ke Draft POS
                 let drafts = JSON.parse(localStorage.getItem('rizqiyya_pos_drafts')) || [];
                 drafts.push({ name: requests[idx].name, phone: requests[idx].phone || '' });
                 localStorage.setItem('rizqiyya_pos_drafts', JSON.stringify(drafts));
